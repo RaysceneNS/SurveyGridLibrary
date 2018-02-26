@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="BcNtsLocation.cs" />
+    <Compile Remove="DlsLocation.cs" />
+    <Compile Remove="DlsSectionMarkers - Copy.cs" />
+    <Compile Remove="DlsTownship.cs" />
+    <Compile Remove="GeographicAngle.cs" />
+    <Compile Remove="LatLongBounds.cs" />
+    <Compile Remove="LocationSystem.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="coordinates.bin" />
+  </ItemGroup>
+
+</Project>
