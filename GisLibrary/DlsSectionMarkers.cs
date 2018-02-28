@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Reflection;
 
 namespace GisLibrary
 {
@@ -54,20 +56,19 @@ namespace GisLibrary
     }
 
     /// <summary>
-    /// The DLS Boundary cache provides a buffering mechanism for DLS Boundary lookups,
-    /// We cache the most frequently requested DLS Boundary queries in order to speed their retrieval
+    /// This boundary provider should only be used for development purposes
     /// </summary>
-    internal class DlsTownshipMarkerCache
+    public class DlsTownshipMarkerProvider 
     {
-        #region Singleton
-
-        private static volatile DlsTownshipMarkerCache _instance;
+        private bool _isInitialized;
+        private readonly Dictionary<ushort, float[]> _offsets = new Dictionary<ushort, float[]>(15488);
+        private static volatile DlsTownshipMarkerProvider _instance;
         private static readonly object PadLock = new object();
 
         /// <summary>
-        /// Returns the singleton instance of this factory class
+        /// Returns the singleton instance of this class
         /// </summary>
-        public static DlsTownshipMarkerCache Instance
+        public static DlsTownshipMarkerProvider Instance
         {
             get
             {
@@ -76,73 +77,14 @@ namespace GisLibrary
                     lock (PadLock)
                     {
                         if (_instance == null)
-                            _instance = new DlsTownshipMarkerCache();
+                        {
+                            _instance = new DlsTownshipMarkerProvider();
+                        }
                     }
                 }
                 return _instance;
             }
         }
-
-        #endregion
-
-        private readonly Dictionary<ushort, DlsSectionMarkers[]> _cache;
-        private readonly object _cacheLock = new object();
-        private readonly DlsTownshipMarkerProvider _provider;
-
-        /// <summary>
-        /// Construct the cache 
-        /// </summary>
-        private DlsTownshipMarkerCache()
-        {
-            _cache = new Dictionary<ushort, DlsSectionMarkers[]>(16384);
-            _provider = new DlsTownshipMarkerProvider();
-        }
-
-        /// <summary>
-        /// Ask for the section markers from the internal provider interface
-        /// </summary>
-        /// <param name="section">The section to find</param>
-        /// <param name="township">The township to find</param>
-        /// <param name="range">The range to find</param>
-        /// <param name="meridian">The meridian to find</param>
-        /// <returns></returns>
-        public DlsSectionMarkers Lookup(byte section, byte township, byte range, byte meridian)
-        {
-            //build up a key to denote this item in the cache
-            var key = (ushort)(meridian << 13 | range << 7 | township);
-
-            DlsSectionMarkers[] dlsSectionMarkers;
-            lock (_cacheLock)
-            {
-                if (_cache.TryGetValue(key, out dlsSectionMarkers))
-                {
-                    return dlsSectionMarkers?[section - 1];
-                }
-            }
-
-            //value not in cache, lookup and add now....
-            var townshipMarkers = _provider.TownshipMarkers(township, range, meridian);
-            //test again before adding, prevent race conditions.
-            lock (_cacheLock)
-            {
-                if(!_cache.TryGetValue(key, out dlsSectionMarkers))
-                {
-                    _cache.Add(key, townshipMarkers);
-                }
-            }
-
-            return townshipMarkers?[section-1];
-        }
-    }
-    
-    /// <summary>
-    /// This boundary provider should only be used for development purposes
-    /// </summary>
-    public class DlsTownshipMarkerProvider 
-    {
-        private bool _isInitialized;
-        private readonly Dictionary<ushort, long> _offsets = new Dictionary<ushort, long>(16384);
-        private const string FileName = "coordinates.bin";
 
         /// <summary>
         /// Create the boundary provider
@@ -152,91 +94,96 @@ namespace GisLibrary
             _isInitialized = false;
         }
 
-        private void ReadIndexes()
+        private void LoadData()
         {
-            using (var br = new BinaryReader(File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read)))
-            {
-                var len = br.BaseStream.Length;
-                while (br.BaseStream.Position < len)
-                {
-                    _offsets.Add(br.ReadUInt16(), br.BaseStream.Position);
+            var assembly = typeof(DlsSectionMarkers).GetTypeInfo().Assembly;
+            var resourceName = "GisLibrary.coordinates.gz";
 
-                    br.BaseStream.Seek(1152, SeekOrigin.Current);
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                using (var zip = new DeflateStream(stream, CompressionMode.Decompress))
+                {
+                    using (var br = new BinaryReader(zip))
+                    {
+                        var len = zip.BaseStream.Length;
+                        while (zip.BaseStream.Position < len)
+                        {
+                            var key = br.ReadUInt16();
+                            float[] township = new float[288];
+                            for (int i = 0; i < 288; i++)
+                            {
+                                township[i] = br.ReadSingle();
+                            }
+
+                            _offsets.Add(key, township);
+                        }
+                    }
                 }
             }
         }
 
         /// <summary>
-		/// Returns the list of boundary coordinates for the given section 
-		/// </summary>
-		/// <param name="township">The township to find</param>
-		/// <param name="range">The range to find</param>
-		/// <param name="meridian">The meridian to find</param>
-		/// <returns></returns>
-		public DlsSectionMarkers[] TownshipMarkers(byte township, byte range, byte meridian)
+        /// Returns the list of boundary coordinates for the given section 
+        /// </summary>
+        /// <param name="section"></param>
+        /// <param name="township">The township to find</param>
+        /// <param name="range">The range to find</param>
+        /// <param name="meridian">The meridian to find</param>
+        /// <returns></returns>
+        public DlsSectionMarkers TownshipMarkers(byte section, byte township, byte range, byte meridian)
         {
             if (!_isInitialized)
             {
                 lock (_offsets)
                 {
-                    ReadIndexes();
+                    LoadData();
                 }
                 _isInitialized = true;
             }
 
             //find the index of the township in the binary file
-            var key = (ushort)(meridian << 13 | range << 7 | township);
-            if (!_offsets.TryGetValue(key, out var townshipOffset))
+            var key = (ushort) (meridian << 13 | range << 7 | township);
+            if (!_offsets.TryGetValue(key, out var townshipFloats))
             {
                 return null;
             }
 
-            using (var br = new BinaryReader(File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read)))
-            {
-                //seek to the township data directly
-                br.BaseStream.Seek(townshipOffset, SeekOrigin.Begin);
-                
-                var dlsSectionMarkers = new DlsSectionMarkers[36];
-                for (int section = 0; section < 36; section++)
-                {
-                    var lat = br.ReadSingle();
-                    var lon = br.ReadSingle();
-                    LatLongCoordinate? se;
-                    if (lat == 0 && lon == 0)
-                        se = null;
-                    else
-                        se = new LatLongCoordinate(lat, lon);
+            //seek to the section within the township data directly
+            int i = (section - 1) * 8;
+            var lat = townshipFloats[i++];
+            var lon = townshipFloats[i++];
+            LatLongCoordinate? se;
+            if (lat == 0 && lon == 0)
+                se = null;
+            else
+                se = new LatLongCoordinate(lat, lon);
 
-                    lat = br.ReadSingle();
-                    lon = br.ReadSingle();
-                    LatLongCoordinate? sw;
-                    if (lat == 0 && lon == 0)
-                        sw = null;
-                    else
-                        sw = new LatLongCoordinate(lat, lon);
+            lat = townshipFloats[i++];
+            lon = townshipFloats[i++];
+            LatLongCoordinate? sw;
+            if (lat == 0 && lon == 0)
+                sw = null;
+            else
+                sw = new LatLongCoordinate(lat, lon);
 
-                    lat = br.ReadSingle();
-                    lon = br.ReadSingle();
-                    LatLongCoordinate? nw;
-                    if (lat == 0 && lon == 0)
-                        nw = null;
-                    else
-                        nw = new LatLongCoordinate(lat, lon);
+            lat = townshipFloats[i++];
+            lon = townshipFloats[i++];
+            LatLongCoordinate? nw;
+            if (lat == 0 && lon == 0)
+                nw = null;
+            else
+                nw = new LatLongCoordinate(lat, lon);
 
-                    lat = br.ReadSingle();
-                    lon = br.ReadSingle();
-                    LatLongCoordinate? ne;
-                    if (lat == 0 && lon == 0)
-                        ne = null;
-                    else
-                        ne = new LatLongCoordinate(lat, lon);
-                    
-                    // Build a boundary object that contains 1-4 corners.
-                    dlsSectionMarkers[section] = new DlsSectionMarkers(se, sw, ne, nw);
-                }
+            lat = townshipFloats[i++];
+            lon = townshipFloats[i++];
+            LatLongCoordinate? ne;
+            if (lat == 0 && lon == 0)
+                ne = null;
+            else
+                ne = new LatLongCoordinate(lat, lon);
 
-                return dlsSectionMarkers;
-            }
+            // Build a boundary object that contains 1-4 corners.
+            return new DlsSectionMarkers(se, sw, ne, nw);
         }
     }
 }

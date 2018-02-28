@@ -20,6 +20,11 @@
 
   <ItemGroup>
     <None Remove="coordinates.bin" />
+    <None Remove="coordinates.gz" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="coordinates.gz" />
   </ItemGroup>
 
 </Project>

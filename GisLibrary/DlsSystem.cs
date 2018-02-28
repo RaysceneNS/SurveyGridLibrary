@@ -488,7 +488,7 @@ namespace GisLibrary
 		public static LatLongCoordinate ToLatLong(DlsSystem dls)
         {
             //ask the boundary provider for a list
-            var dlsBoundary = DlsTownshipMarkerCache.Instance.Lookup(dls.Section, dls.Township, dls.Range, dls.Meridian);
+            var dlsBoundary = DlsTownshipMarkerProvider.Instance.TownshipMarkers(dls.Section, dls.Township, dls.Range, dls.Meridian);
 
             if (dlsBoundary == null || dlsBoundary.Count == 0)
             {
@@ -1028,7 +1028,7 @@ namespace GisLibrary
         /// <returns></returns>
         private static LatLongCoordinate RetrieveCorner(SectionCorner corner, byte section, byte town, byte rng, byte mer)
         {
-            var boundary = DlsTownshipMarkerCache.Instance.Lookup(section, town, rng, mer);
+            var boundary = DlsTownshipMarkerProvider.Instance.TownshipMarkers(section, town, rng, mer);
 
             if (boundary == null || boundary.Count == 0)
             {
