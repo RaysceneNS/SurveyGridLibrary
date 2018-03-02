@@ -121,10 +121,10 @@ namespace UnitTestProject1
             Assert.IsNotNull(bc);
             Assert.AreEqual(73, bc.Block);
             Assert.AreEqual(72, bc.MapArea);
-            Assert.AreEqual(65, bc.QuarterUnit);
+            Assert.AreEqual(68, bc.QuarterUnit);
             Assert.AreEqual(83, bc.Series);
             Assert.AreEqual(16, bc.Sheet);
-            Assert.AreEqual(101, bc.Unit);
+            Assert.AreEqual(91, bc.Unit);
 
             var bc2 = LatLongCoordinate.ToBcNtsGridSystem(a);
             Assert.AreEqual(bc, bc2);

@@ -110,9 +110,10 @@ namespace GisLibrary
                         {
                             var key = br.ReadUInt16();
                             float[] township = new float[288];
-                            for (int i = 0; i < 288; i++)
+                            for (int i = 0; i < 288; i+=2)
                             {
                                 township[i] = br.ReadSingle();
+                                township[i+1] = br.ReadSingle() * -1;
                             }
 
                             _offsets.Add(key, township);

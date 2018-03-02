@@ -17,7 +17,7 @@ namespace UnitTestProject1
             var southEast = markers.SouthEast.Value;
 
             Assert.AreEqual(49.0008010864258, southEast.Latitude, 0.000000001);
-            Assert.AreEqual(97.4597702026367, southEast.Longitude, 0.000000001);
+            Assert.AreEqual(-97.4597702026367, southEast.Longitude, 0.000000001);
         }
 
         [TestMethod]

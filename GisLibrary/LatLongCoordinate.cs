@@ -278,9 +278,12 @@ namespace GisLibrary
 			            $"{(_latitude >= 0 ? "N" : "S")}{Math.Abs(_latitude):000.000000} {(_longitude >= 0 ? " E" : " W")}{Math.Abs(_longitude):0000.000000}";
 
 			    case "dms":
-					return ToDegreesMinutesSeconds();
+			        return ToDegreesMinutesSeconds();
 
-			    case "sd":
+			    case "dm":
+			        return ToDegreesMinutes();
+
+                case "sd":
 				    // returns the latitude in signed degrees format i.e. '50.123456 -114.123456'
 			        return string.Format("{0:f6} {1:f6}", _latitude, _longitude);
 
@@ -313,12 +316,28 @@ namespace GisLibrary
 			return string.Format("{0}, {1}", _latitude, _longitude);
 		}
 
-		/// <summary>
+	    /// <summary>
+	    /// Returns the latlong in Degrees/Minutes
+	    /// i.e. 'N50 33.3521 W114 01.7411'
+	    /// </summary>
+	    /// <returns></returns>
+	    public string ToDegreesMinutes()
+	    {
+	        var latDegrees = (int)_latitude;
+	        var latMinutes = ((_latitude - latDegrees) * 60);
+	        
+	        var lngDegrees = (int)_longitude;
+	        var lngMinutes = ((_longitude - lngDegrees) * 60);
+
+	        return
+	            $"{(_latitude >= 0 ? "N" : "S")}{Math.Abs(latDegrees)} {latMinutes:#0.####} {(_longitude >= 0 ? " E" : " W")}{Math.Abs(lngDegrees)} {lngMinutes:#0.####}";
+	    }
+        /// <summary>
         /// Returns the latlong in Degrees/Minutes/Seconds
         /// i.e. 'N50 33 08.352 W114 01 29.74'
-		/// </summary>
-		/// <returns></returns>
-		public string ToDegreesMinutesSeconds()
+        /// </summary>
+        /// <returns></returns>
+        public string ToDegreesMinutesSeconds()
 		{
             var latDegrees = (int)_latitude;
             var latMinutes = (int)((_latitude - latDegrees) * 60);
@@ -329,7 +348,7 @@ namespace GisLibrary
             var lngSeconds = ((_longitude - lngDegrees) * 3600) - (lngMinutes*60);
 
             return
-                $"{latDegrees}° {latMinutes}' {latSeconds:#,0.####}\" {lngDegrees}° {lngMinutes}' {lngSeconds:#,0.####}\"";
+                $"{(_latitude >= 0 ? "N" : "S")}{Math.Abs(latDegrees)} {latMinutes} {latSeconds:#,0.####} {(_longitude >= 0 ? " E" : " W")}{Math.Abs(lngDegrees)} {lngMinutes} {lngSeconds:#,0.####}";
 		}
         
 		/// <summary>
@@ -635,16 +654,14 @@ namespace GisLibrary
 
 			var j = dd.IndexOf('W');
 
-			if ((j == -1) || (j >= dd.Length - 1))
+			if (j == -1 || (j >= dd.Length - 1))
 				throw new Exception("The longitude must have the 'E' or 'W' character.");
 
 			var latitude = float.Parse(dd.Substring(i + 1, j-1));
 			if (latitude < MinLatitude || latitude > MaxLatitude)
 				throw new Exception(string.Format("Latitude must be in the range {0} to {1}", MinLatitude, MaxLatitude));
 
-
-
-			var longitude = float.Parse(dd.Substring(j + 1));
+            var longitude = float.Parse(dd.Substring(j + 1));
 			if (longitude < MinLongitude || longitude > MaxLongitude)
 				throw new Exception(string.Format("Longitude must be in the range {0} to {1}", MinLongitude, MaxLongitude));
 
@@ -672,39 +689,39 @@ namespace GisLibrary
             var latitude = Math.Abs(geo.Latitude);
 
             // map the latitudes to map sheets
-            var latPq = new Dictionary<byte, double>
+            var latPq = new Dictionary<byte, float>
                             {
-                                {82, 48.0},
-                                {83, 52.0},
-                                {92, 48.0},
-                                {93, 52.0},
-                                {94, 56.0},
-                                {102, 48.0},
-                                {103, 52.0},
-                                {104, 56.0},
-                                {114, 56.0}
+                                {82, 48},
+                                {83, 52},
+                                {92, 48},
+                                {93, 52},
+                                {94, 56},
+                                {102, 48},
+                                {103, 52},
+                                {104, 56},
+                                {114, 56}
                             };
 
             // map the longitudes to map sheets
-            var lngPq = new Dictionary<byte, double>
+            var lngPq = new Dictionary<byte, float>
                             {
-                                {82, 112.0},
-                                {83, 112.0},
-                                {92, 120.0},
-                                {93, 120.0},
-                                {94, 120.0},
-                                {102, 128.0},
-                                {103, 128.0},
-                                {104, 128.0},
-                                {114, 136.0}
+                                {82, 112},
+                                {83, 112},
+                                {92, 120},
+                                {93, 120},
+                                {94, 120},
+                                {102, 128},
+                                {103, 128},
+                                {104, 128},
+                                {114, 136}
                             };
 
             byte pq = 0;
             foreach (var keyValuePair in latPq)
             {
                 var q = keyValuePair.Key;
-                if (latitude >= latPq[q] && latitude <= latPq[q] + 4.0 &&
-                    longitude >= lngPq[q] && longitude <= lngPq[q] + 8.0)
+                if (latitude >= latPq[q] && latitude <= latPq[q] + 4 &&
+                    longitude >= lngPq[q] && longitude <= lngPq[q] + 8)
                 {
                     pq = q;
                     break;
@@ -717,51 +734,51 @@ namespace GisLibrary
             var lat = latitude - latPq[pq];
             var lng = longitude - lngPq[pq];
 
-            var latLq = new Dictionary<char, double>
+            var latLq = new Dictionary<char, float>
                             {
-                                {'A', 0.0},
-                                {'B', 0.0},
-                                {'C', 0.0},
-                                {'D', 0.0},
-                                {'E', 1.0},
-                                {'F', 1.0},
-                                {'G', 1.0},
-                                {'H', 1.0},
-                                {'I', 2.0},
-                                {'J', 2.0},
-                                {'K', 2.0},
-                                {'L', 2.0},
-                                {'M', 3.0},
-                                {'N', 3.0},
-                                {'O', 3.0},
-                                {'P', 3.0}
+                                {'A', 0},
+                                {'B', 0},
+                                {'C', 0},
+                                {'D', 0},
+                                {'E', 1},
+                                {'F', 1},
+                                {'G', 1},
+                                {'H', 1},
+                                {'I', 2},
+                                {'J', 2},
+                                {'K', 2},
+                                {'L', 2},
+                                {'M', 3},
+                                {'N', 3},
+                                {'O', 3},
+                                {'P', 3}
                             };
 
-            var lngLq = new Dictionary<char, double>
+            var lngLq = new Dictionary<char, float>
                             {
-                                {'A', 0.0},
-                                {'B', 2.0},
-                                {'C', 4.0},
-                                {'D', 6.0},
-                                {'E', 6.0},
-                                {'F', 4.0},
-                                {'G', 2.0},
-                                {'H', 0.0},
-                                {'I', 0.0},
-                                {'J', 2.0},
-                                {'K', 4.0},
-                                {'L', 6.0},
-                                {'M', 6.0},
-                                {'N', 4.0},
-                                {'O', 2.0},
-                                {'P', 0.0}
+                                {'A', 0},
+                                {'B', 2},
+                                {'C', 4},
+                                {'D', 6},
+                                {'E', 6},
+                                {'F', 4},
+                                {'G', 2},
+                                {'H', 0},
+                                {'I', 0},
+                                {'J', 2},
+                                {'K', 4},
+                                {'L', 6},
+                                {'M', 6},
+                                {'N', 4},
+                                {'O', 2},
+                                {'P', 0}
                             };
 
             var lq = '\0';
             foreach (var key in latLq.Keys)
             {
-                if (lat >= latLq[key] && lat <= latLq[key] + 1.0 &&
-                    lng >= lngLq[key] && lng <= lngLq[key] + 2.0)
+                if (lat >= latLq[key] && lat <= latLq[key] + 1 &&
+                    lng >= lngLq[key] && lng <= lngLq[key] + 2)
                 {
                     lq = key;
                     break;
@@ -773,43 +790,44 @@ namespace GisLibrary
             lat -= latLq[lq];
             lng -= lngLq[lq];
 
-            var latSix = new Dictionary<byte, double>
+            //every six is 1/4 high x 1/2 wide
+            var latSix = new Dictionary<byte, float>
                              {
-                                 {1, 0.0},
-                                 {2, 0.0},
-                                 {3, 0.0},
-                                 {4, 0.0},
-                                 {5, 0.25},
-                                 {6, 0.25},
-                                 {7, 0.25},
-                                 {8, 0.25},
-                                 {9, 0.5},
-                                 {10, 0.5},
-                                 {11, 0.5},
-                                 {12, 0.5},
-                                 {13, 0.75},
-                                 {14, 0.75},
-                                 {15, 0.75},
-                                 {16, 0.75}
+                                 {1, 0},
+                                 {2, 0},
+                                 {3, 0},
+                                 {4, 0},
+                                 {5, 0.25f},
+                                 {6, 0.25f},
+                                 {7, 0.25f},
+                                 {8, 0.25f},
+                                 {9, 0.5f},
+                                 {10, 0.5f},
+                                 {11, 0.5f},
+                                 {12, 0.5f},
+                                 {13, 0.75f},
+                                 {14, 0.75f},
+                                 {15, 0.75f},
+                                 {16, 0.75f}
                              };
-            var lngSix = new Dictionary<byte, double>
+            var lngSix = new Dictionary<byte, float>
                              {
-                                 {1, 0.0},
-                                 {2, 0.5},
-                                 {3, 1.0},
-                                 {4, 1.5},
-                                 {5, 1.5},
-                                 {6, 1.0},
-                                 {7, 0.5},
-                                 {8, 0.0},
-                                 {9, 0.0},
-                                 {10, 0.5},
-                                 {11, 1.0},
-                                 {12, 1.5},
-                                 {13, 1.5},
-                                 {14, 1.0},
-                                 {15, 0.5},
-                                 {16, 0.0}
+                                 {1, 0f},
+                                 {2, 0.5f},
+                                 {3, 1f},
+                                 {4, 1.5f},
+                                 {5, 1.5f},
+                                 {6, 1f},
+                                 {7, 0.5f},
+                                 {8, 0f},
+                                 {9, 0f},
+                                 {10, 0.5f},
+                                 {11, 1f},
+                                 {12, 1.5f},
+                                 {13, 1.5f},
+                                 {14, 1f},
+                                 {15, 0.5f},
+                                 {16, 0f}
                              };
 
             byte six = 0;
@@ -828,15 +846,16 @@ namespace GisLibrary
             lat -= latSix[six];
             lng -= lngSix[six];
 
-            const double latZoneHeight = 1.0 / 12.0;
-            const double latZoneWidth = 1.0 / 8.0;
+            //every zone is 1/12 high by 1/8 wide
+            const float latZoneHeight = 1 / 12f;
+            const float latZoneWidth = 1 / 8f;
 
-            var latZn = new Dictionary<char, double>
+            var latZn = new Dictionary<char, float>
                             {
-                                {'A', 0.0},
-                                {'B', 0.0},
-                                {'C', 0.0},
-                                {'D', 0.0},
+                                {'A', 0},
+                                {'B', 0},
+                                {'C', 0},
+                                {'D', 0},
                                 {'E', latZoneHeight},
                                 {'F', latZoneHeight},
                                 {'G', latZoneHeight},
@@ -847,17 +866,17 @@ namespace GisLibrary
                                 {'L', latZoneHeight * 2}
                             };
 
-            var lngZn = new Dictionary<char, double>
+            var lngZn = new Dictionary<char, float>
                             {
-                                {'A', 0.0},
+                                {'A', 0},
                                 {'B', latZoneWidth},
                                 {'C', latZoneWidth*2},
                                 {'D', latZoneWidth*3},
                                 {'E', latZoneWidth*3},
                                 {'F', latZoneWidth*2},
                                 {'G', latZoneWidth},
-                                {'H', 0.0},
-                                {'I', 0.0},
+                                {'H', 0},
+                                {'I', 0},
                                 {'J', latZoneWidth},
                                 {'K', latZoneWidth*2},
                                 {'L', latZoneWidth*3}
@@ -867,7 +886,7 @@ namespace GisLibrary
             foreach (var n in latZn.Keys)
             {
                 if (lat >= latZn[n] && lat <= latZn[n] + latZoneHeight &&
-                    lng >= lngZn[n] && lng <= lngZn[n] + 0.125)
+                    lng >= lngZn[n] && lng <= lngZn[n] + latZoneWidth)
                 {
                     zn = n;
                     break;
@@ -879,18 +898,21 @@ namespace GisLibrary
             lat -= latZn[zn];
             lng -= lngZn[zn];
 
-            var y = (byte)Math.Floor(120.0 * lat);
-            var x = (byte)Math.Floor(lng / 0.0125D);
+
+            //every unit is 1/120 high by 1/80 wide
+            var y = (byte)Math.Floor(120 * lat);
+            var x = (byte)Math.Floor(lng / 0.0125f);
             var unit = (byte)(x + 1 + y * 10);
 
-            lat -= y / 120.0;
-            lng -= x * 0.0125;
+            lat -= y / 120f;
+            lng -= x * 0.0125f;
 
-            const double quarterHeight = 1.0 / 240.0;
-            const double quarterWidth = 1.0 / 180.0;
+            //each quarter is 1/240 high by 1/160 wide
+            const double quarterHeight = 1 / 240f;
+            const double quarterWidth = 1 / 160f;
 
-            var latQtr = new Dictionary<char, double> { { 'A', 0.0 }, { 'B', 0.0 }, { 'C', quarterHeight }, { 'D', quarterHeight } };
-            var lngQtr = new Dictionary<char, double> { { 'A', 0.0 }, { 'B', quarterWidth }, { 'C', quarterWidth }, { 'D', 0.0 } };
+            var latQtr = new Dictionary<char, double> { { 'A', 0 }, { 'B', 0 }, { 'C', quarterHeight }, { 'D', quarterHeight } };
+            var lngQtr = new Dictionary<char, double> { { 'A', 0 }, { 'B', quarterWidth }, { 'C', quarterWidth }, { 'D', 0 } };
 
             var qtr = '\0';
             foreach (var n in latQtr.Keys)
@@ -906,7 +928,6 @@ namespace GisLibrary
                 throw new Exception("Quarter is invalid.");
 
             return new BcNtsGridSystem(qtr, unit, zn, pq, lq, six);
-
         }
 
         /// <summary>

@@ -470,8 +470,8 @@ namespace GisLibrary
                 //L|K|J|I
                 //E|F|G|H
                 //D|C|B|A
-                const float blockHeight = 0.25f / 3;
-                const float blockWidth = 0.125f;
+                const float blockHeight = 1/12f;
+                const float blockWidth = 1/8f;
                 var latZn = new Dictionary<char, float>
                                 {
                                     {'A', 0},

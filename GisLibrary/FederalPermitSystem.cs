@@ -375,9 +375,40 @@ SOR/80-590, s. 2.
             return !(x == y);
         }
 
-        public static FederalPermitSystem Parse(string str)
+        public static FederalPermitSystem Parse(string location)
         {
-            throw new NotImplementedException();
+            if (location == null)
+                throw new CoordinateParseException("Can not parse a null location.");
+
+            if (string.IsNullOrWhiteSpace(location))
+                throw new CoordinateParseException("Can not parse an empty location.");
+
+            //parsing is easier when we only deal with a single case
+            location = location.ToUpper();
+
+            string[] parts = location.Split('-');
+
+            if (parts.Length != 4)
+                throw new CoordinateParseException("Location must have 4 parts separated by hyphens.");
+
+
+            if (parts[0].Length != 1)
+                throw new CoordinateParseException("Location must have unit of length 1.");
+            if (parts[1].Length != 2)
+                throw new CoordinateParseException("Location must have section of length 2.");
+            if (parts[2].Length != 4)
+                throw new CoordinateParseException("Location must have latitude of length 4.");
+            if (parts[3].Length != 5)
+                throw new CoordinateParseException("Location must have longitude of length 5.");
+
+            char unit = parts[0][0];
+            byte.TryParse(parts[1], out var section);
+            short.TryParse(parts[2].Substring(0,2), out var latDegrees);
+            byte.TryParse(parts[2].Substring(2, 2), out var latMinutes);
+            short.TryParse(parts[3].Substring(0, 3), out var lonDegrees);
+            byte.TryParse(parts[3].Substring(3, 2), out var lonMinutes);
+
+            return new FederalPermitSystem(unit, section, latDegrees, latMinutes, lonDegrees, lonMinutes);
         }
 
         public override string ToString()

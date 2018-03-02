@@ -59,11 +59,11 @@ namespace UnitTestProject1
             var a = new DlsSystem(4, 11, 82, 4, 'W', 6);
             var ll = a.ToLatLong();
             Assert.AreEqual(56.08892, ll.Latitude, 0.00001);
-            Assert.AreEqual(118.519378662109, ll.Longitude, 0.00001);
+            Assert.AreEqual(-118.519378662109, ll.Longitude, 0.00001);
 
             ll = DlsSystem.ToLatLong(a);
             Assert.AreEqual(56.08892, ll.Latitude, 0.00001);
-            Assert.AreEqual(118.519378662109, ll.Longitude, 0.00001);
+            Assert.AreEqual(-118.519378662109, ll.Longitude, 0.00001);
         }
 
         [TestMethod]
@@ -106,6 +106,19 @@ namespace UnitTestProject1
             Assert.AreEqual(82, a.Township);
             Assert.AreEqual(4, a.Range);
             Assert.AreEqual(11, a.Section);
+        }
+
+        [TestMethod]
+        public void ConversionTests()
+        {
+            var dls = new DlsSystem(7, 6, 5, 4, 'W', 5);
+
+            var ll = dls.ToLatLong();
+            Assert.AreEqual(49.354435, ll.Latitude, 0.000001);
+            Assert.AreEqual(-114.524994, ll.Longitude, 0.000001);
+
+            var bcnts = ll.ToBcNtsGridSystem();
+            Assert.AreEqual("C-022-H/082-G-07", bcnts.ToString());
         }
     }
 }
