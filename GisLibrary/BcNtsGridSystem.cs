@@ -551,6 +551,257 @@ namespace GisLibrary
             }
         }
 
+        /// <summary>
+        /// Converts the <see cref="LatLongCoordinate"/> instance to a BC NTS location.
+        /// </summary>
+        /// <param name="geo">The geo.</param>
+        /// <returns></returns>
+        public static BcNtsGridSystem FromGeographicCoordinates(LatLongCoordinate geo)
+        {
+            var longitude = Math.Abs(geo.Longitude);
+            var latitude = Math.Abs(geo.Latitude);
+
+            // map the latitudes to map sheets
+            var latPq = new Dictionary<byte, float>
+                            {
+                                {82, 48},
+                                {83, 52},
+                                {92, 48},
+                                {93, 52},
+                                {94, 56},
+                                {102, 48},
+                                {103, 52},
+                                {104, 56},
+                                {114, 56}
+                            };
+
+            // map the longitudes to map sheets
+            var lngPq = new Dictionary<byte, float>
+                            {
+                                {82, 112},
+                                {83, 112},
+                                {92, 120},
+                                {93, 120},
+                                {94, 120},
+                                {102, 128},
+                                {103, 128},
+                                {104, 128},
+                                {114, 136}
+                            };
+
+            byte pq = 0;
+            foreach (var keyValuePair in latPq)
+            {
+                var q = keyValuePair.Key;
+                if (latitude >= latPq[q] && latitude <= latPq[q] + 4 &&
+                    longitude >= lngPq[q] && longitude <= lngPq[q] + 8)
+                {
+                    pq = q;
+                    break;
+                }
+            }
+
+            if (pq == 0)
+                throw new Exception("The geographic location is not in a BC primary quadrant.");
+
+            var lat = latitude - latPq[pq];
+            var lng = longitude - lngPq[pq];
+
+            var latLq = new Dictionary<char, float>
+                            {
+                                {'A', 0},
+                                {'B', 0},
+                                {'C', 0},
+                                {'D', 0},
+                                {'E', 1},
+                                {'F', 1},
+                                {'G', 1},
+                                {'H', 1},
+                                {'I', 2},
+                                {'J', 2},
+                                {'K', 2},
+                                {'L', 2},
+                                {'M', 3},
+                                {'N', 3},
+                                {'O', 3},
+                                {'P', 3}
+                            };
+
+            var lngLq = new Dictionary<char, float>
+                            {
+                                {'A', 0},
+                                {'B', 2},
+                                {'C', 4},
+                                {'D', 6},
+                                {'E', 6},
+                                {'F', 4},
+                                {'G', 2},
+                                {'H', 0},
+                                {'I', 0},
+                                {'J', 2},
+                                {'K', 4},
+                                {'L', 6},
+                                {'M', 6},
+                                {'N', 4},
+                                {'O', 2},
+                                {'P', 0}
+                            };
+
+            var lq = '\0';
+            foreach (var key in latLq.Keys)
+            {
+                if (lat >= latLq[key] && lat <= latLq[key] + 1 &&
+                    lng >= lngLq[key] && lng <= lngLq[key] + 2)
+                {
+                    lq = key;
+                    break;
+                }
+            }
+            if (lq == '\0')
+                throw new Exception("lq is invalid.");
+
+            lat -= latLq[lq];
+            lng -= lngLq[lq];
+
+            //every six is 1/4 high x 1/2 wide
+            var latSix = new Dictionary<byte, float>
+                             {
+                                 {1, 0},
+                                 {2, 0},
+                                 {3, 0},
+                                 {4, 0},
+                                 {5, 0.25f},
+                                 {6, 0.25f},
+                                 {7, 0.25f},
+                                 {8, 0.25f},
+                                 {9, 0.5f},
+                                 {10, 0.5f},
+                                 {11, 0.5f},
+                                 {12, 0.5f},
+                                 {13, 0.75f},
+                                 {14, 0.75f},
+                                 {15, 0.75f},
+                                 {16, 0.75f}
+                             };
+            var lngSix = new Dictionary<byte, float>
+                             {
+                                 {1, 0f},
+                                 {2, 0.5f},
+                                 {3, 1f},
+                                 {4, 1.5f},
+                                 {5, 1.5f},
+                                 {6, 1f},
+                                 {7, 0.5f},
+                                 {8, 0f},
+                                 {9, 0f},
+                                 {10, 0.5f},
+                                 {11, 1f},
+                                 {12, 1.5f},
+                                 {13, 1.5f},
+                                 {14, 1f},
+                                 {15, 0.5f},
+                                 {16, 0f}
+                             };
+
+            byte six = 0;
+            foreach (var n in latSix.Keys)
+            {
+                if (lat >= latSix[n] && lat <= latSix[n] + 0.25 &&
+                    lng >= lngSix[n] && lng <= lngSix[n] + 0.5)
+                {
+                    six = n;
+                    break;
+                }
+            }
+            if (six == 0)
+                throw new Exception("six is invalid");
+
+            lat -= latSix[six];
+            lng -= lngSix[six];
+
+            //every zone is 1/12 high by 1/8 wide
+            const float latZoneHeight = 1 / 12f;
+            const float latZoneWidth = 1 / 8f;
+
+            var latZn = new Dictionary<char, float>
+                            {
+                                {'A', 0},
+                                {'B', 0},
+                                {'C', 0},
+                                {'D', 0},
+                                {'E', latZoneHeight},
+                                {'F', latZoneHeight},
+                                {'G', latZoneHeight},
+                                {'H', latZoneHeight},
+                                {'I', latZoneHeight * 2},
+                                {'J', latZoneHeight * 2},
+                                {'K', latZoneHeight * 2},
+                                {'L', latZoneHeight * 2}
+                            };
+
+            var lngZn = new Dictionary<char, float>
+                            {
+                                {'A', 0},
+                                {'B', latZoneWidth},
+                                {'C', latZoneWidth*2},
+                                {'D', latZoneWidth*3},
+                                {'E', latZoneWidth*3},
+                                {'F', latZoneWidth*2},
+                                {'G', latZoneWidth},
+                                {'H', 0},
+                                {'I', 0},
+                                {'J', latZoneWidth},
+                                {'K', latZoneWidth*2},
+                                {'L', latZoneWidth*3}
+                            };
+
+            var zn = '\0';
+            foreach (var n in latZn.Keys)
+            {
+                if (lat >= latZn[n] && lat <= latZn[n] + latZoneHeight &&
+                    lng >= lngZn[n] && lng <= lngZn[n] + latZoneWidth)
+                {
+                    zn = n;
+                    break;
+                }
+            }
+            if (zn == '\0')
+                throw new Exception("Zone is invalid");
+
+            lat -= latZn[zn];
+            lng -= lngZn[zn];
+
+
+            //every unit is 1/120 high by 1/80 wide
+            var y = (byte)Math.Floor(120 * lat);
+            var x = (byte)Math.Floor(lng / 0.0125f);
+            var unit = (byte)(x + 1 + y * 10);
+
+            lat -= y / 120f;
+            lng -= x * 0.0125f;
+
+            //each quarter is 1/240 high by 1/160 wide
+            const double quarterHeight = 1 / 240f;
+            const double quarterWidth = 1 / 160f;
+
+            var latQtr = new Dictionary<char, double> { { 'A', 0 }, { 'B', 0 }, { 'C', quarterHeight }, { 'D', quarterHeight } };
+            var lngQtr = new Dictionary<char, double> { { 'A', 0 }, { 'B', quarterWidth }, { 'C', quarterWidth }, { 'D', 0 } };
+
+            var qtr = '\0';
+            foreach (var n in latQtr.Keys)
+            {
+                if (lat >= latQtr[n] && lat <= latQtr[n] + quarterHeight &&
+                    lng >= lngQtr[n] && lng <= lngQtr[n] + quarterWidth)
+                {
+                    qtr = n;
+                    break;
+                }
+            }
+            if (qtr == '\0')
+                throw new Exception("Quarter is invalid.");
+
+            return new BcNtsGridSystem(qtr, unit, zn, pq, lq, six);
+        }
         #endregion
     }
 }

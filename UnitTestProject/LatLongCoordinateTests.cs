@@ -65,28 +65,28 @@ namespace UnitTestProject1
         public void TestToString()
         {
             var a = new LatLongCoordinate(1, 10);
-            Assert.AreEqual("N1 00.000 E10 00.000", a.ToString());
-            Assert.AreEqual("N1 00.000 E10 00.000", a.ToString("g"));
-            Assert.AreEqual("1, 10", a.ToConvertibleString());
-            Assert.AreEqual("1° 0' 0\" 10° 0' 0\"", a.ToDegreesMinutesSeconds());
+            Assert.AreEqual("1, 10", a.ToString());
+            Assert.AreEqual("1, 10", a.ToString("g"));
+            Assert.AreEqual("N1 00.000 E10 00.000", a.ToString("dm"));
+            Assert.AreEqual("N1° 0' 0.0\" E10° 0' 0.0\"", a.ToString("dms"));
 
             var b = new LatLongCoordinate(-1, 10);
-            Assert.AreEqual("S1 00.000 E10 00.000", b.ToString());
-            Assert.AreEqual("S1 00.000 E10 00.000", b.ToString("g"));
-            Assert.AreEqual("-1, 10", b.ToConvertibleString());
-            Assert.AreEqual("-1° 0' 0\" 10° 0' 0\"", b.ToDegreesMinutesSeconds());
+            Assert.AreEqual("-1, 10", b.ToString());
+            Assert.AreEqual("-1, 10", b.ToString("g"));
+            Assert.AreEqual("S1 00.000 E10 00.000", b.ToString("dm"));
+            Assert.AreEqual("S1° 0' 0.0\" E10° 0' 0.0\"", b.ToString("dms"));
 
             var c = new LatLongCoordinate(1, -10);
-            Assert.AreEqual("N1 00.000 W10 00.000", c.ToString());
-            Assert.AreEqual("N1 00.000 W10 00.000", c.ToString("g"));
-            Assert.AreEqual("1, -10", c.ToConvertibleString());
-            Assert.AreEqual("1° 0' 0\" -10° 0' 0\"", c.ToDegreesMinutesSeconds());
+            Assert.AreEqual("1, -10", c.ToString());
+            Assert.AreEqual("1, -10", c.ToString("g"));
+            Assert.AreEqual("N1 00.000 W10 00.000", c.ToString("dm"));
+            Assert.AreEqual("N1° 0' 0.0\" W10° 0' 0.0\"", c.ToString("dms"));
 
             var d = new LatLongCoordinate(-1, -10);
-            Assert.AreEqual("S1 00.000 W10 00.000", d.ToString());
-            Assert.AreEqual("S1 00.000 W10 00.000", d.ToString("g"));
-            Assert.AreEqual("-1, -10", d.ToConvertibleString());
-            Assert.AreEqual("-1° 0' 0\" -10° 0' 0\"", d.ToDegreesMinutesSeconds());
+            Assert.AreEqual("-1, -10", d.ToString());
+            Assert.AreEqual("-1, -10", d.ToString("g"));
+            Assert.AreEqual("S1 00.000 W10 00.000", d.ToString("dm"));
+            Assert.AreEqual("S1° 0' 0.0\" W10° 0' 0.0\"", d.ToString("dms"));
         }
 
         [TestMethod]
