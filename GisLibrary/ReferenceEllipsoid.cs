@@ -10,7 +10,7 @@ namespace GisLibrary
     public struct ReferenceEllipsoid
     {
         /// <summary>
-        /// World Geodetic System 1984 reference ellipsiod
+        /// World Geodetic System 1984 reference ellipsoid
         /// </summary>
         public static readonly ReferenceEllipsoid Wgs84 = new ReferenceEllipsoid(6378137, 6356752.314245, 1 / 298.257223563);
 

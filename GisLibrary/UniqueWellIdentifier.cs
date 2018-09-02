@@ -2,11 +2,11 @@
 
 namespace GisLibrary
 {
-	/// <summary>
-	/// UWI IN THE DLS SYSTEM
-	/// 
-	/// the unique well identifier is the standard 16-character code which defines the bottom hole location and each significant drilling or completion event in the well.
-	/// 
+    /// <summary>
+    /// UWI IN THE DLS SYSTEM
+    /// 
+    /// the unique well identifier is the standard 16-character code which defines the bottom hole location and each significant drilling or completion event in the well.
+    /// 
     /// A unique well identifier in Alberta is based on the Dominion Land Survey format
     /// In the DLS system the first character is always '1' the second character is always '0'
     /// 
@@ -41,7 +41,6 @@ namespace GisLibrary
     ///     =>      second and subsequent completions
     /// 
     /// 
-    /// 
     /// UWI in the NTS System
     ///
     /// Example well location d-96-H/94-A-15
@@ -67,49 +66,46 @@ namespace GisLibrary
     /// -         The fifteenth character is always "0" (zero).
     /// -         The sixteenth character, the event sequence code, indicates the significant drilling and/or completion operations at a well which 
     ///                 yield a separate and unique set of geological or production data. See the description above under the DLS well example.
-	/// </summary>
-	public struct UniqueWellIdentifier : IEquatable<UniqueWellIdentifier>
-	{
-		/// <summary>
-		/// The uwi is immutable
-		/// </summary>
-		private readonly char[] _id;
+    /// </summary>
+    public struct UniqueWellIdentifier : IEquatable<UniqueWellIdentifier>
+    {
+        private readonly char[] _id;
         private readonly SurveySystemCode _surveySystem;
 
 
         /// <summary>
         /// Constructs a unique well identifier from the supplied arguments. This overload is used to build from NTS components.
-		/// </summary>
-		public UniqueWellIdentifier(char except, char quarterUnit, byte unit, char block, byte series, char mapArea, byte sheet, char eventSeq)
-		{
-			string id =
-			    $"20{except}{quarterUnit}{unit:000}{block}{series:000}{mapArea}{sheet:00}0{eventSeq}";
-			_id = id.ToCharArray(0, 16);
+        /// </summary>
+        public UniqueWellIdentifier(char except, char quarterUnit, byte unit, char block, byte series, char mapArea, byte sheet, char eventSeq)
+        {
+            string id =
+                $"20{except}{quarterUnit}{unit:000}{block}{series:000}{mapArea}{sheet:00}0{eventSeq}";
+            _id = id.ToCharArray(0, 16);
             _surveySystem = SurveySystemCode.NationalTopographicSeries;
-		}
+        }
 
-		/// <summary>
+        /// <summary>
         /// Constructs a unique well identifier from the supplied arguments This overload is used to build from DLS components.
-		/// </summary>
-		public UniqueWellIdentifier(string except, byte lsd, byte section, byte town, byte range, char direction, byte mer, char eventSeq)
-		{
-			string id =
-			    $"1{except}{lsd:00}{section:00}{town:000}{range:00}{direction}{mer:0}0{eventSeq}";
-			_id = id.ToCharArray(0, 16);
+        /// </summary>
+        public UniqueWellIdentifier(string except, byte lsd, byte section, byte town, byte range, char direction, byte mer, char eventSeq)
+        {
+            string id =
+                $"1{except}{lsd:00}{section:00}{town:000}{range:00}{direction}{mer:0}0{eventSeq}";
+            _id = id.ToCharArray(0, 16);
             _surveySystem = SurveySystemCode.DominionLandSurvey;
-		}
+        }
 
-	    private UniqueWellIdentifier(char[] uwi, SurveySystemCode surveySystem)
+        private UniqueWellIdentifier(char[] uwi, SurveySystemCode surveySystem)
         {
             _id = uwi;
             _surveySystem = surveySystem;
-	    }
+        }
 
-	    /// <summary>
+        /// <summary>
         /// Parse a string representation of a Unique Well Identifier 
         /// </summary>
         /// <param name="uwi"></param>
-	    public static UniqueWellIdentifier Parse(string uwi)
+        public static UniqueWellIdentifier Parse(string uwi)
         {
             if(uwi == null)
                 throw new ArgumentNullException(nameof(uwi));
@@ -118,8 +114,8 @@ namespace GisLibrary
             if(uwi.Length != 16)
                 throw new CoordinateParseException("UWI must contain 16 characters.");
 
-	        switch (uwi[0])
-	        {
+            switch (uwi[0])
+            {
                 case '1':
                     return ParseDls(uwi);
                 case '2':
@@ -130,11 +126,11 @@ namespace GisLibrary
                     return ParseGeodetic(uwi);
                 default:
                     throw new CoordinateParseException("Expected uwi to start with '1-4'");
-	        }
+            }
         }
 
-	    private static UniqueWellIdentifier ParseGeodetic(string uwi)
-	    {
+        private static UniqueWellIdentifier ParseGeodetic(string uwi)
+        {
             if (uwi == null)
                 throw new ArgumentNullException(nameof(uwi));
 
@@ -149,10 +145,10 @@ namespace GisLibrary
                 throw new CoordinateParseException("The 15th character must be zero.");
 
             return new UniqueWellIdentifier(uwi.ToCharArray(0, 16), SurveySystemCode.GeodeticCoordinates);
-	    }
+        }
 
-	    private static UniqueWellIdentifier ParseFederal(string uwi)
-	    {
+        private static UniqueWellIdentifier ParseFederal(string uwi)
+        {
             if (uwi == null)
                 throw new ArgumentNullException(nameof(uwi));
 
@@ -165,9 +161,9 @@ namespace GisLibrary
                 throw new CoordinateParseException("The first character must be '3'.");
 
             return new UniqueWellIdentifier(uwi.ToCharArray(0, 16), SurveySystemCode.FederalPermitSystem);
-	    }
+        }
 
-	    /// <summary>
+        /// <summary>
         /// Parse a National Topographic System well identifier
         /// </summary>
         /// <param name="uwi"></param>
@@ -219,27 +215,27 @@ namespace GisLibrary
                 throw new CoordinateParseException("The 15th character must be zero.");
 
             return new UniqueWellIdentifier(uwi.ToCharArray(0, 16), SurveySystemCode.DominionLandSurvey);
-	    }
+        }
 
         /// <summary>
         /// Returns the kind of this uwi (dls/nts)
         /// </summary>
-	    public SurveySystemCode SurveySystem 
+        public SurveySystemCode SurveySystem 
         {
-	        get { return _surveySystem; }
-	    }
+            get { return _surveySystem; }
+        }
 
-	    /// <summary>
+        /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
         /// <param name="other">An object to compare with this object.</param>
         /// <returns>
         /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
         /// </returns>
-	    public bool Equals(UniqueWellIdentifier other)
-	    {
-	        return this == other;
-	    }
+        public bool Equals(UniqueWellIdentifier other)
+        {
+            return this == other;
+        }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -300,112 +296,112 @@ namespace GisLibrary
             return !(x == y);
         }
 
-	    /// <summary>
+        /// <summary>
         /// ToString override, returns the UWI 
         /// </summary>
         /// <returns></returns>
-		public override string ToString()
-		{
-			return new string(_id);
-		}
+        public override string ToString()
+        {
+            return new string(_id);
+        }
         
-	    /// <summary>
-	    /// A one-character code in position 1 indicating the Survey System by which the well is located, and
-	    /// the set of location items that will follow in Identifier positions 4 – 15. 
-	    /// </summary>
-	    public enum SurveySystemCode : byte
-	    {
-	        /// <summary>
-	        /// The dominion land survey (DLS) system
-	        /// </summary>
-	        DominionLandSurvey = 1,
+        /// <summary>
+        /// A one-character code in position 1 indicating the Survey System by which the well is located, and
+        /// the set of location items that will follow in Identifier positions 4 – 15. 
+        /// </summary>
+        public enum SurveySystemCode : byte
+        {
+            /// <summary>
+            /// The dominion land survey (DLS) system
+            /// </summary>
+            DominionLandSurvey = 1,
 
-	        /// <summary>
-	        /// The national topographic series (NTS) system
-	        /// </summary>
-	        NationalTopographicSeries = 2,
+            /// <summary>
+            /// The national topographic series (NTS) system
+            /// </summary>
+            NationalTopographicSeries = 2,
 
-	        /// <summary>
-	        /// The federal permit system
-	        /// </summary>
-	        FederalPermitSystem = 3,
+            /// <summary>
+            /// The federal permit system
+            /// </summary>
+            FederalPermitSystem = 3,
 
-	        /// <summary>
-	        /// The geodetic coordinates system
-	        /// </summary>
-	        GeodeticCoordinates
-	    }
+            /// <summary>
+            /// The geodetic coordinates system
+            /// </summary>
+            GeodeticCoordinates
+        }
 
-	    /// <summary>
-	    /// Location 
-	    /// </summary>
-	    public string LocationExceptionCode
-	    {
-	        get { return "" + _id[1] + _id[2]; }
-	    }
+        /// <summary>
+        /// Location 
+        /// </summary>
+        public string LocationExceptionCode
+        {
+            get { return "" + _id[1] + _id[2]; }
+        }
 
-	    /// <summary>
-	    /// legal survey 
-	    /// </summary>
-	    public string LegalSurveySystem
-	    {
-	        get { return "" + _id[3] + _id[4] + _id[5] + _id[6] + _id[7] + _id[8] + _id[9] + _id[10] + _id[11] + _id[12] + _id[13] + _id[14]; }
-	    }
+        /// <summary>
+        /// legal survey 
+        /// </summary>
+        public string LegalSurveySystem
+        {
+            get { return "" + _id[3] + _id[4] + _id[5] + _id[6] + _id[7] + _id[8] + _id[9] + _id[10] + _id[11] + _id[12] + _id[13] + _id[14]; }
+        }
         
-	    /// <summary>
-	    /// Event sequence
-	    /// </summary>
-	    public char EventSequenceCode
-	    {
-	        get { return _id[15]; }
-	    }
+        /// <summary>
+        /// Event sequence
+        /// </summary>
+        public char EventSequenceCode
+        {
+            get { return _id[15]; }
+        }
 
-	    public static LatLongCoordinate ToLatLongCoordinate(UniqueWellIdentifier uwi)
-	    {
-	        switch (uwi.SurveySystem)
-	        {
-	            case SurveySystemCode.DominionLandSurvey:
-	                return ExtractDlsSystem(uwi).ToLatLong();
+        public static LatLongCoordinate ToLatLongCoordinate(UniqueWellIdentifier uwi)
+        {
+            switch (uwi.SurveySystem)
+            {
+                case SurveySystemCode.DominionLandSurvey:
+                    return ExtractDlsSystem(uwi).ToLatLong();
 
                 case SurveySystemCode.GeodeticCoordinates:
                     return GeodeticToLatLong(uwi);
 
-	            case SurveySystemCode.FederalPermitSystem:
-	                return ExtractFederalPermitSystem(uwi).ToLatLong();
+                case SurveySystemCode.FederalPermitSystem:
+                    return ExtractFederalPermitSystem(uwi).ToLatLong();
 
                 case SurveySystemCode.NationalTopographicSeries:
                     return ExtractBcNtsGridSystem(uwi).ToLatLong();
 
-	            default:
+                default:
                     throw new ArgumentOutOfRangeException();
-	        }
+            }
         }
 
-	    private static FederalPermitSystem ExtractFederalPermitSystem(UniqueWellIdentifier uwi)
-	    {
-	        var unit = uwi._id[3];
-	        byte.TryParse("" + uwi._id[4] + uwi._id[5], out var section);
+        private static FederalPermitSystem ExtractFederalPermitSystem(UniqueWellIdentifier uwi)
+        {
+            var unit = uwi._id[3];
+            byte.TryParse("" + uwi._id[4] + uwi._id[5], out var section);
 
-	        byte.TryParse("" + uwi._id[6] + uwi._id[7], out var latDegrees);
-	        byte.TryParse("" + uwi._id[8] + uwi._id[9], out var latMinutes);
+            byte.TryParse("" + uwi._id[6] + uwi._id[7], out var latDegrees);
+            byte.TryParse("" + uwi._id[8] + uwi._id[9], out var latMinutes);
 
-	        byte.TryParse("" + uwi._id[10] + uwi._id[11] + uwi._id[12], out var lonDegrees);
-	        byte.TryParse("" + uwi._id[13] + uwi._id[14], out var lonMinutes);
+            byte.TryParse("" + uwi._id[10] + uwi._id[11] + uwi._id[12], out var lonDegrees);
+            byte.TryParse("" + uwi._id[13] + uwi._id[14], out var lonMinutes);
 
             return new FederalPermitSystem(unit, section, latDegrees, latMinutes, lonDegrees, lonMinutes);
         }
 
-	    private static BcNtsGridSystem ExtractBcNtsGridSystem(UniqueWellIdentifier uwi)
-	    {
-	        var quarterUnit = uwi._id[3];
-	        byte.TryParse("" + uwi._id[4] + uwi._id[5] + uwi._id[6], out var unit);
-	        var block = uwi._id[7];
-	        byte.TryParse("" + uwi._id[8] + uwi._id[9] + uwi._id[10], out var series);
-	        var mapArea = uwi._id[11];
-	        byte.TryParse("" + uwi._id[12] + uwi._id[13], out var sheet);
+        private static BcNtsGridSystem ExtractBcNtsGridSystem(UniqueWellIdentifier uwi)
+        {
+            var quarterUnit = uwi._id[3];
+            byte.TryParse("" + uwi._id[4] + uwi._id[5] + uwi._id[6], out var unit);
+            var block = uwi._id[7];
+            byte.TryParse("" + uwi._id[8] + uwi._id[9] + uwi._id[10], out var series);
+            var mapArea = uwi._id[11];
+            byte.TryParse("" + uwi._id[12] + uwi._id[13], out var sheet);
 
             return new BcNtsGridSystem(quarterUnit, unit, block, series, mapArea, sheet);
-	    }
+        }
 
         private static DlsSystem ExtractDlsSystem(UniqueWellIdentifier uwi)
         {
@@ -417,15 +413,15 @@ namespace GisLibrary
             byte.TryParse("" + uwi._id[13], out var meridian);
 
             return new DlsSystem(subdivision, section, township, range, direction, meridian);
-	    }
+        }
 
         private static LatLongCoordinate GeodeticToLatLong(UniqueWellIdentifier uwi)
         {
-            var strlat = "" + uwi._id[3] + uwi._id[4] + "." + uwi._id[5] + uwi._id[6] + uwi._id[7];
-            var strlon = "" + uwi._id[8] + uwi._id[9] + uwi._id[10] + "." + uwi._id[11] + uwi._id[12] + uwi._id[13];
-            float.TryParse(strlat, out var lat);
-	        float.TryParse(strlon, out var lon);
-	        return new LatLongCoordinate(lat, lon);
-	    }
+            var slat = "" + uwi._id[3] + uwi._id[4] + "." + uwi._id[5] + uwi._id[6] + uwi._id[7];
+            var slon = "" + uwi._id[8] + uwi._id[9] + uwi._id[10] + "." + uwi._id[11] + uwi._id[12] + uwi._id[13];
+            float.TryParse(slat, out var lat);
+            float.TryParse(slon, out var lon);
+            return new LatLongCoordinate(lat, lon);
+        }
     }
 }

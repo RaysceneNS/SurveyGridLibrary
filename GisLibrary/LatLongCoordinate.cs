@@ -163,27 +163,6 @@ namespace GisLibrary
             get { return _longitude; }
         }
 
-        /// <summary>
-        /// Gets the latitude in radians.
-        /// </summary>
-        public float LatitudeInRadians
-        {
-            get
-            {
-                return Angle.FromDegrees(_latitude).Radians;
-            }
-        }
-
-        /// <summary>
-        /// Gets the longitude in radians.
-        /// </summary>
-        public float LongitudeInRadians
-        {
-            get
-            {
-                return Angle.FromDegrees(_longitude).Radians;
-            }
-        }
 
         #region Methods
 
@@ -284,12 +263,12 @@ namespace GisLibrary
 
                 case "sd":
                     // returns the latitude in signed degrees format i.e. '50.123456 -114.123456'
-                    return string.Format("{0:f6} {1:f6}", _latitude, _longitude);
+                    return $"{_latitude:f6} {_longitude:f6}";
 
                 case "wkt":
-                    // returns lat long in well known text format as per opengis specification 
+                    // returns lat long in well known text format as per open gis specification 
                     // i.e. POINT(long, lat)
-                    return string.Format("POINT({0:000.000000} {1:0000.000000})", _longitude, _latitude);
+                    return $"POINT({_longitude:000.000000} {_latitude:0000.000000})";
 
                 case "g":
                     return ToConvertibleString();
@@ -301,17 +280,17 @@ namespace GisLibrary
 
 
         /// <summary>
-        /// Returns the latitude as a convertible string, that is it returns the comma seperated values of the underlying doubles 
+        /// Returns the latitude as a convertible string, that is it returns the comma separated values of the underlying doubles 
         /// i.e. 'lat, long'
         /// </summary>
         /// <returns></returns>
         private string ToConvertibleString()
         {
-            return string.Format("{0}, {1}", _latitude, _longitude);
+            return $"{_latitude}, {_longitude}";
         }
 
         /// <summary>
-        /// Returns the latlong in Degrees/Minutes
+        /// Returns the lat long in Degrees/Minutes
         /// i.e. 'N50 33.3521 W114 01.7411'
         /// </summary>
         /// <returns></returns>
@@ -328,7 +307,7 @@ namespace GisLibrary
         }
 
         /// <summary>
-        /// Returns the latlong in Degrees/Minutes/Seconds
+        /// Returns the lat long in Degrees/Minutes/Seconds
         /// i.e. 'N50° 33' 8.32" W114° 01' 29.74"
         /// </summary>
         /// <returns></returns>
@@ -347,7 +326,7 @@ namespace GisLibrary
         }
 
         /// <summary>
-        /// Parses a latlong structure from the convertible string representation
+        /// Parses a lat long structure from the convertible string representation
         /// </summary>
         /// <param name="convertibleString">The convertible string.</param>
         /// <returns></returns>
@@ -358,7 +337,7 @@ namespace GisLibrary
                 tokens = convertibleString.Split(' ');
 
             if (tokens.Length != 2)
-                throw new CoordinateParseException("Invalid latlong string '" + convertibleString + "'.");
+                throw new CoordinateParseException($"Invalid lat long string \'{convertibleString}\'.");
             var latValue = tokens[0].Trim();
             var longValue = tokens[1].Trim();
             return new LatLongCoordinate(float.Parse(latValue), float.Parse(longValue));
@@ -418,7 +397,7 @@ namespace GisLibrary
                 var parts = s.Split(separators);
                 if (parts.Length != 4)
                 {
-                    throw new ArgumentException("Unsupported latlon");
+                    throw new ArgumentException("Unsupported lat lon");
                 }
 
                 short latDegrees;
@@ -509,7 +488,7 @@ namespace GisLibrary
         }
 
         /// <summary>
-        /// Return the distance in metres to another point using WGS84 ellipsiod
+        /// Return the distance in metres to another point using WGS84 ellipsoid
         /// </summary>
         /// <param name="p2"></param>
         /// <param name="ellipsoid"></param>
@@ -520,7 +499,7 @@ namespace GisLibrary
 
             var transverseRadius = ellipsoid.SemiMajorAxis;
             var conjugateRadius = ellipsoid.SemiMinorAxis;
-            var flattening = ellipsoid.InverseFlattening; // WGS-84 ellipsiod
+            var flattening = ellipsoid.InverseFlattening; // WGS-84 ellipsoid
 
             var l = p2.RadiansLon - p1.RadiansLon;
             var u1 = Math.Atan((1 - flattening) * Math.Tan(p1.RadiansLat));
@@ -533,14 +512,14 @@ namespace GisLibrary
             var lambda = l;
             var lambdaP = 2 * Math.PI;
             //limit the formula to this number of iterations to prevent possible infinite looping
-            var iterLimit = 20;
+            var limit = 20;
 
             var cos2SigmaM = 0.0;
             var cosSigma = 0.0;
             var cosSqAlpha = 0.0;
             var sigma = 0.0;
             var sinSigma = 0.0;
-            while (Math.Abs(lambda - lambdaP) > 1e-12 && --iterLimit > 0)
+            while (Math.Abs(lambda - lambdaP) > 1e-12 && --limit > 0)
             {
                 var sinLambda = Math.Sin(lambda);
                 var cosLambda = Math.Cos(lambda);
@@ -563,7 +542,7 @@ namespace GisLibrary
                 lambda = l + (1 - c) * flattening * sinAlpha *
                   (sigma + c * sinSigma * (cos2SigmaM + c * cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM)));
             }
-            if (iterLimit == 0)
+            if (limit == 0)
                 throw new Exception("Formula failed to converge on solution.");  // formula failed to converge
 
             var uSq = cosSqAlpha * (transverseRadius * transverseRadius - conjugateRadius * conjugateRadius) / (conjugateRadius * conjugateRadius);
@@ -579,7 +558,7 @@ namespace GisLibrary
 
         /// <summary>
         /// Returns the distance between locations via great circle arcs on the globe, this function assumes that the earth is spherical
-        /// For more accurate distances it is recomended to use the Wgs84 Formulae
+        /// For more accurate distances it is recommended to use the Wgs84 formula
         /// </summary>
         /// <param name="destination"></param>
         /// <returns></returns>
@@ -595,12 +574,12 @@ namespace GisLibrary
         /// </summary>
         /// <param name="geo">The other point to derive a distance to</param>
         /// <returns></returns>
-        internal double RelativeDistanceTo(LatLongCoordinate geo)
+        public double RelativeDistanceTo(LatLongCoordinate geo)
         {
             var lat2 = geo.Latitude;
             var lat1 = this.Latitude;
-            var lon2 = geo.Longitude;
-            var lon1 = this.Longitude;
+            var lon2 = Math.Abs(geo.Longitude);
+            var lon1 = Math.Abs( this.Longitude);
 
             var dLat = Angle.FromDegrees(lat2 - lat1).Radians;
             var dLon = Angle.FromDegrees(lon2 - lon1).Radians;
@@ -613,7 +592,7 @@ namespace GisLibrary
         }
 
         /// <summary>
-        /// Calculates the circle arc angle between latlongs
+        /// Calculates the circle arc angle between lat longs
         /// </summary>
         /// <param name="p1">The p1.</param>
         /// <param name="p2">The p2.</param>
@@ -632,7 +611,7 @@ namespace GisLibrary
         #region Conversion
 
         /// <summary>
-        /// Conver decimal degrees to lat long
+        /// Convert decimal degrees to lat long
         /// </summary>
         /// <param name="dd"></param>
         /// <returns></returns>
@@ -654,11 +633,11 @@ namespace GisLibrary
 
             var latitude = float.Parse(dd.Substring(i + 1, j - 1));
             if (latitude < MinLatitude || latitude > MaxLatitude)
-                throw new Exception(string.Format("Latitude must be in the range {0} to {1}", MinLatitude, MaxLatitude));
+                throw new Exception($"Latitude must be in the range {MinLatitude} to {MaxLatitude}");
 
             var longitude = float.Parse(dd.Substring(j + 1));
             if (longitude < MinLongitude || longitude > MaxLongitude)
-                throw new Exception(string.Format("Longitude must be in the range {0} to {1}", MinLongitude, MaxLongitude));
+                throw new Exception($"Longitude must be in the range {MinLongitude} to {MaxLongitude}");
 
             return new LatLongCoordinate(latitude, -longitude);
         }
@@ -675,7 +654,7 @@ namespace GisLibrary
 
         public static BcNtsGridSystem ToBcNtsGridSystem(LatLongCoordinate coordinate)
         {
-            return BcNtsGridSystem.FromGeographicCoordinates(coordinate);
+            return BcNtsGridSystemConverter.FromLatLongCoordinates(coordinate);
         }
 
         /// <summary>
@@ -695,7 +674,7 @@ namespace GisLibrary
         /// <returns></returns>
         public static DlsSystem ToDlsSystem(LatLongCoordinate coordinate)
         {
-            return DlsSystem.FromGeographicCoordinates(coordinate);
+            return DlsSystemConverter.FromGeographicCoordinates(coordinate);
         }
 
         #endregion

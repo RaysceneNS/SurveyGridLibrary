@@ -75,7 +75,7 @@ namespace GisLibrary
         {
             get
             {
-                return RadiansToGradians(this._radians);
+                return (float) (this._radians * (200.0 / Math.PI));
             }
         }
 
@@ -96,18 +96,13 @@ namespace GisLibrary
         {
             return (float)(radians / Math.PI * 180.0);
         }
-
-        private static float RadiansToGradians(float radian)
-        {
-            return (float)(radian * (200.0 / Math.PI));
-        }
-
+        
         public int CompareTo(object obj)
         {
             if (obj == null)
                 return 1;
             if (!(obj is Angle))
-                throw new ArgumentException("Object is not a Angle");
+                throw new ArgumentException("Object is not an Angle");
             return this.CompareTo((Angle)obj);
         }
 
@@ -175,9 +170,9 @@ namespace GisLibrary
 
             if (format == "g")
             {
-                return string.Format("{0}", this._radians);
+                return $"{this._radians}";
             }
-            throw new ArgumentException(string.Format("Unsupported format string '{0}'", format));
+            throw new ArgumentException($"Unsupported format string '{format}'");
         }
     }
 }

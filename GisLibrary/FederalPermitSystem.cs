@@ -58,7 +58,7 @@ SOR/80-590, s. 2.
 
         /// <summary>
         /// Federal permit system Latitude and longitude refer to the northeast corner of a permit which is 10 minutes by 15
-        /// minutes(10’ x 30‘ north of 700). Section(SEC) 100 is coded 00. 
+        /// minutes(10' x 30' north of 700). Section(SEC) 100 is coded 00. 
         /// </summary>
         /// <param name="unit"></param>
         /// <param name="section"></param>
@@ -68,7 +68,6 @@ SOR/80-590, s. 2.
         /// <param name="lonMinutes"></param>
         public FederalPermitSystem(char unit, byte section, short latDegrees, byte latMinutes, short lonDegrees, byte lonMinutes)
         {
-
             if (latDegrees < 40 || latDegrees > 85)
             {
                 throw new Exception("latitude must be between 40 and 85.");
@@ -119,7 +118,7 @@ SOR/80-590, s. 2.
             // D B C A
             if (unit < 'A' || unit > 'P')
             {
-                throw  new ArgumentException("unit must be 'A' through 'P'");
+                throw new ArgumentException("unit must be 'A' through 'P'");
             }
 
             _unit = unit;
@@ -182,7 +181,7 @@ SOR/80-590, s. 2.
         private static float SectionMinuteFactor(short latDegrees)
         {
             var sectionCount = SectionCount(latDegrees);
-            //section width is 15 minutes or 30 minutes based on the 70th degree of latitute
+            //section width is 15 minutes or 30 minutes based on the 70th degree of latitude
             if (latDegrees >= 70)
             {
                 //grid area is 30 minutes side to side
@@ -234,7 +233,6 @@ SOR/80-590, s. 2.
             float sectionMinuteFactor = SectionMinuteFactor(_latDegrees);
             float lonMinutes = _lonMinutes + (remainSectionLongitude * sectionMinuteFactor);
             
-
             // add in the offset for the unit now
             // longitude varies between 1.5 and 5 minutes per division 
             short x, y;
@@ -308,7 +306,7 @@ SOR/80-590, s. 2.
                     throw new Exception();
             }
 
-            latMinutes += y * (1/4f); //add quarter minutes to latitiude
+            latMinutes += y * (1/4f); //add quarter minutes to latitude
             lonMinutes += x * (sectionMinuteFactor / 4f); //add quarter sections to longitude
             
             return new LatLongCoordinate(_latDegrees, latMinutes, _lonDegrees, lonMinutes);
@@ -330,8 +328,7 @@ SOR/80-590, s. 2.
         {
             return other is FederalPermitSystem system && this == system;
         }
-
-
+        
         /// <summary>
         /// Returns a hash code for this instance.
         /// </summary>

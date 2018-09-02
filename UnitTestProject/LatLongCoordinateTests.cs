@@ -30,9 +30,6 @@ namespace UnitTestProject1
             Assert.AreEqual(90, ll.Latitude);
             Assert.AreEqual(90, ll.Longitude);
 
-            Assert.AreEqual(Math.PI / 2, ll.LatitudeInRadians, 0.000001);
-            Assert.AreEqual(Math.PI / 2, ll.LongitudeInRadians, 0.000001);
-
             Assert.AreEqual(Math.PI / 2, ll.RadiansLat, 0.000001);
             Assert.AreEqual(Math.PI / 2, ll.RadiansLon, 0.000001);
         }
@@ -116,18 +113,20 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestToBcGeographicSystem()
         {
-            var a = new LatLongCoordinate(54, 112);
+            var a = new LatLongCoordinate(54, -112);
             var bc = a.ToBcNtsGridSystem();
             Assert.IsNotNull(bc);
-            Assert.AreEqual(73, bc.Block);
-            Assert.AreEqual(72, bc.MapArea);
-            Assert.AreEqual(68, bc.QuarterUnit);
-            Assert.AreEqual(83, bc.Series);
-            Assert.AreEqual(16, bc.Sheet);
-            Assert.AreEqual(91, bc.Unit);
 
-            var bc2 = LatLongCoordinate.ToBcNtsGridSystem(a);
-            Assert.AreEqual(bc, bc2);
+            Assert.AreEqual('A', bc.QuarterUnit);
+            Assert.AreEqual(1, bc.Unit);
+            Assert.AreEqual('A', bc.Block);
+
+            Assert.AreEqual(83, bc.Series);
+            Assert.AreEqual('I', bc.MapArea);
+            Assert.AreEqual(1, bc.Sheet);
+
+           // var bc2 = LatLongCoordinate.ToBcNtsGridSystem(a);
+           // Assert.AreEqual(bc, bc2);
         }
 
         [TestMethod]
@@ -157,7 +156,7 @@ namespace UnitTestProject1
             d = a.SphereDistanceTo(b);
             Assert.AreEqual(1116899.78905404, d, 0.0000001);
         }
-
+        
         [TestMethod]
         public void TestGreatCircleAngle()
         {
@@ -169,36 +168,71 @@ namespace UnitTestProject1
             Assert.AreEqual(10.0332813262939, d.Degrees, 0.00000001);
         }
 
+
         [TestMethod]
-        public void TestBcGeographicSystem()
+        public void TestBcGeographicSystem1()
         {
+            // A-1-A/82-O-1
             var a = new LatLongCoordinate(51, -114);
             var nts = a.ToBcNtsGridSystem();
 
-            Assert.AreEqual(76, nts.Block);
-            Assert.AreEqual(73, nts.MapArea);
-            Assert.AreEqual(65, nts.QuarterUnit);
+            Assert.AreEqual('A', nts.QuarterUnit);
+            Assert.AreEqual(1, nts.Unit);
+            Assert.AreEqual('A', nts.Block);
+
             Assert.AreEqual(82, nts.Series);
-            Assert.AreEqual(13, nts.Sheet);
-            Assert.AreEqual(111, nts.Unit);
+            Assert.AreEqual('O', nts.MapArea);
+            Assert.AreEqual(1, nts.Sheet);
         }
 
         [TestMethod]
-        public void TestDlsSystem()
+        public void TestBcGeographicSystem2()
+        {
+            // A-1-A/83-J-3
+            var a = new LatLongCoordinate(54, -115);
+            var nts = a.ToBcNtsGridSystem();
+
+            Assert.AreEqual('A', nts.QuarterUnit);
+            Assert.AreEqual(1, nts.Unit);
+            Assert.AreEqual('A', nts.Block);
+
+            Assert.AreEqual(83, nts.Series);
+            Assert.AreEqual('J', nts.MapArea);
+            Assert.AreEqual(3, nts.Sheet);
+        }
+
+
+        [TestMethod]
+        public void TestDlsSystemNearFifth()
+        {
+            var coordinate = new LatLongCoordinate(51, -114);
+
+            var dls = LatLongCoordinate.ToDlsSystem(coordinate);
+            //5-33-23-29-W4
+            Assert.AreEqual(23, dls.Township);
+            Assert.AreEqual(29, dls.Range);
+            Assert.AreEqual('W', dls.Direction);
+            Assert.AreEqual(4, dls.Meridian);
+
+            Assert.AreEqual(33, dls.Section);
+            Assert.AreEqual("SW", dls.Quarter);
+            Assert.AreEqual(5, dls.LegalSubdivision);
+        }
+
+        [TestMethod]
+        public void TestDlsSystem2()
         {
             var a = new LatLongCoordinate(54, -115);
             var dls = a.ToDlsSystem();
+            //9-8-58-7-W5
+            Assert.AreEqual("NE", dls.Quarter);
+            Assert.AreEqual(9, dls.LegalSubdivision);
+            Assert.AreEqual(8, dls.Section);
 
-            Assert.AreEqual(87, dls.Direction);
-            Assert.AreEqual(4, dls.LegalSubdivision);
+            Assert.AreEqual(58, dls.Township);
+            Assert.AreEqual(7, dls.Range);
+            Assert.AreEqual('W', dls.Direction);
             Assert.AreEqual(5, dls.Meridian);
-            Assert.AreEqual("SW", dls.Quarter);
-            Assert.AreEqual(26, dls.Range);
-            Assert.AreEqual(6, dls.Section);
-            Assert.AreEqual(75, dls.Township);
-
-            var dls2 = LatLongCoordinate.ToDlsSystem(a);
-            Assert.AreEqual(dls, dls2);
         }
     }
 }

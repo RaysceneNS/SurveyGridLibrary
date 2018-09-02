@@ -8,28 +8,6 @@ namespace UnitTestProject1
     public class DlsSystemTests
     {
         [TestMethod]
-        public void LoadPerformanceTest()
-        {
-            var start = DateTime.Now;
-
-            for (byte meridian = 1; meridian <= 6; meridian++)
-            {
-                for (byte range = 1; range <= 32; range++)
-                {
-                    for (byte township = 1; township <= 127; township++)
-                    {
-                        var markers =  DlsSystem.TownshipMarkers(township, range, meridian);
-                        Assert.IsNotNull(markers);
-                        Assert.AreEqual(4, markers.Count);
-                    }
-                }
-            }
-            
-            var end = DateTime.Now - start;
-            Console.WriteLine("total time=" + end.TotalMilliseconds); 
-        }
-
-        [TestMethod]
         public void DirectionMoveTests()
         {
             var a = new DlsSystem(4, 11, 82, 4, 'W', 6);
@@ -117,8 +95,30 @@ namespace UnitTestProject1
             Assert.AreEqual(49.354435, ll.Latitude, 0.000001);
             Assert.AreEqual(-114.524994, ll.Longitude, 0.000001);
 
-            var bcnts = ll.ToBcNtsGridSystem();
-            Assert.AreEqual("C-022-H/082-G-07", bcnts.ToString());
+            var ntsGridSystem = ll.ToBcNtsGridSystem();
+            Assert.AreEqual("C-022-H/082-G-07", ntsGridSystem.ToString());
+        }
+
+        [TestMethod]
+        public void EnsureRelativeTests()
+        {
+            var dlsWest = new DlsSystem(8, 36, 23, 1, 'W', 5);
+            var dlsEast = new DlsSystem(5, 33, 23, 29, 'W', 4);
+            var dls932 = new DlsSystem(9, 36, 23, 1, 'W', 5);
+
+            var latWest = dlsWest.ToLatLong();
+            var latEast = dlsEast.ToLatLong();
+            var lat932 = dls932.ToLatLong();
+            Assert.IsTrue(latWest.Longitude < latEast.Longitude);
+            
+            var latTest = new LatLongCoordinate(51, -114);
+            var a = latTest.RelativeDistanceTo(latWest);
+            var b = latTest.RelativeDistanceTo(latEast);
+            var c = latTest.RelativeDistanceTo(lat932);
+
+            //assert that location b is closest to the test location
+            Assert.IsTrue(b < a);
+            Assert.IsTrue(b < c);
         }
     }
 }

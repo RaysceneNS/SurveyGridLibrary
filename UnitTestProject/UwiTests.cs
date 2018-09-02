@@ -107,7 +107,7 @@ namespace UnitTestProject1
         {
             var a = UniqueWellIdentifier.Parse("100143608517W600");
             var ll = UniqueWellIdentifier.ToLatLongCoordinate(a);
-            Assert.AreEqual(56.418846, ll.Latitude, 0.000001);
+            Assert.AreEqual(56.418849, ll.Latitude, 0.000001);
             Assert.AreEqual(-120.512955, ll.Longitude, 0.000001);
         }
 
