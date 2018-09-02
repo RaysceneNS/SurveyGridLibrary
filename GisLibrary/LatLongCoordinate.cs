@@ -162,8 +162,7 @@ namespace GisLibrary
         {
             get { return _longitude; }
         }
-
-
+        
         #region Methods
 
         /// <summary>
@@ -273,7 +272,6 @@ namespace GisLibrary
                 case "g":
                     return ToConvertibleString();
             }
-
 
             throw new FormatException("Invalid format specifier " + format);
         }
@@ -620,24 +618,24 @@ namespace GisLibrary
         {
             dd = dd.Replace(" ", "").ToUpper();
             if (dd.Trim().Length == 0)
-                throw new Exception("The lat/long must not be empty.");
+                throw new ArgumentException("The lat/long must not be empty.");
 
             var i = dd.IndexOf('N');
             if (i == -1)
-                throw new Exception("The latitude must have the 'N' or 'S' character.");
+                throw new ArgumentException("The latitude must have the 'N' or 'S' character.");
 
             var j = dd.IndexOf('W');
 
             if (j == -1 || j >= dd.Length - 1)
-                throw new Exception("The longitude must have the 'E' or 'W' character.");
+                throw new ArgumentException("The longitude must have the 'E' or 'W' character.");
 
             var latitude = float.Parse(dd.Substring(i + 1, j - 1));
             if (latitude < MinLatitude || latitude > MaxLatitude)
-                throw new Exception($"Latitude must be in the range {MinLatitude} to {MaxLatitude}");
+                throw new ArgumentException($"Latitude must be in the range {MinLatitude} to {MaxLatitude}");
 
             var longitude = float.Parse(dd.Substring(j + 1));
             if (longitude < MinLongitude || longitude > MaxLongitude)
-                throw new Exception($"Longitude must be in the range {MinLongitude} to {MaxLongitude}");
+                throw new ArgumentException($"Longitude must be in the range {MinLongitude} to {MaxLongitude}");
 
             return new LatLongCoordinate(latitude, -longitude);
         }
@@ -674,7 +672,10 @@ namespace GisLibrary
         /// <returns></returns>
         public static DlsSystem ToDlsSystem(LatLongCoordinate coordinate)
         {
-            return DlsSystemConverter.FromGeographicCoordinates(coordinate);
+            var dls = DlsSystemConverter.FromLatLongCoordinate(coordinate);
+            if(dls == null)
+                throw new CoordinateConversionException("Dls lookup failed");
+            return dls.Value;
         }
 
         #endregion

@@ -1,5 +1,4 @@
-﻿using System;
-using GisLibrary;
+﻿using GisLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTestProject1
@@ -8,90 +7,51 @@ namespace UnitTestProject1
     public class DlsSystemTests
     {
         [TestMethod]
-        public void DirectionMoveTests()
+        public void ToLatLongTests1()
         {
-            var a = new DlsSystem(4, 11, 82, 4, 'W', 6);
-            Assert.AreEqual(4, a.LegalSubdivision);
-            Assert.AreEqual(11, a.Section);
-
-            var b = a.GoEast();
-            Assert.AreEqual(3, b.LegalSubdivision);
-            Assert.AreEqual(11, b.Section);
-            
-            var c = a.GoWest();
-            Assert.AreEqual(1, c.LegalSubdivision);
-            Assert.AreEqual(10, c.Section);
-
-            var d = a.GoNorth();
-            Assert.AreEqual(5, d.LegalSubdivision);
-            Assert.AreEqual(11, d.Section);
-
-            var e = a.GoSouth();
-            Assert.AreEqual(13, e.LegalSubdivision);
-            Assert.AreEqual(2, e.Section);
+            var latLong = new DlsSystem(4, 11, 82, 4, 'W', 6).ToLatLong();
+            Assert.AreEqual(56.08892, latLong.Latitude, 0.00001);
+            Assert.AreEqual(-118.519378662109, latLong.Longitude, 0.00001);
         }
 
         [TestMethod]
-        public void ToLatLongTests()
+        public void ToLatLongTests2()
         {
-            var a = new DlsSystem(4, 11, 82, 4, 'W', 6);
-            var ll = a.ToLatLong();
-            Assert.AreEqual(56.08892, ll.Latitude, 0.00001);
-            Assert.AreEqual(-118.519378662109, ll.Longitude, 0.00001);
-
-            ll = DlsSystem.ToLatLong(a);
-            Assert.AreEqual(56.08892, ll.Latitude, 0.00001);
-            Assert.AreEqual(-118.519378662109, ll.Longitude, 0.00001);
+            var latLong = DlsSystem.ToLatLong(new DlsSystem(4, 11, 82, 4, 'W', 6));
+            Assert.AreEqual(56.08892, latLong.Latitude, 0.00001);
+            Assert.AreEqual(-118.519378662109, latLong.Longitude, 0.00001);
         }
-
-        [TestMethod]
-        public void InferCenterTests()
-        {
-            var ll = new LatLongCoordinate(56.08892f, -118.519378662109f);
-            var a = DlsSystem.InferCenterLocation(ll);
-
-            Assert.AreEqual('W', a.Direction);
-            Assert.AreEqual(7, a.LegalSubdivision);
-            Assert.AreEqual(6, a.Meridian);
-            Assert.AreEqual("SE", a.Quarter);
-            Assert.AreEqual(82, a.Township);
-            Assert.AreEqual(4, a.Range);
-            Assert.AreEqual(11, a.Section);
-        }
-
+        
         [TestMethod]
         public void CtorTests()
         {
-            var a= new DlsSystem(4, 11, 82, 4, 'W', 6);
-            Assert.AreEqual('W', a.Direction);
-            Assert.AreEqual(4, a.LegalSubdivision);
-            Assert.AreEqual(6, a.Meridian);
-            Assert.AreEqual("SW", a.Quarter);
-            Assert.AreEqual(82, a.Township);
-            Assert.AreEqual(4, a.Range);
-            Assert.AreEqual(11, a.Section);
+            var dlsSystem = new DlsSystem(4, 11, 82, 4, 'W', 6);
+            Assert.AreEqual('W', dlsSystem.Direction);
+            Assert.AreEqual(4, dlsSystem.LegalSubdivision);
+            Assert.AreEqual(6, dlsSystem.Meridian);
+            Assert.AreEqual("SW", dlsSystem.Quarter);
+            Assert.AreEqual(82, dlsSystem.Township);
+            Assert.AreEqual(4, dlsSystem.Range);
+            Assert.AreEqual(11, dlsSystem.Section);
         }
 
         [TestMethod]
         public void DirectionTests()
         {
-            var a = DlsSystem.Parse("04-11-082-04W6");
-
-            Assert.AreEqual('W', a.Direction);
-            Assert.AreEqual(4, a.LegalSubdivision);
-            Assert.AreEqual(6, a.Meridian);
-            Assert.AreEqual("SW", a.Quarter);
-            Assert.AreEqual(82, a.Township);
-            Assert.AreEqual(4, a.Range);
-            Assert.AreEqual(11, a.Section);
+            var dlsSystem = DlsSystem.Parse("04-11-082-04W6");
+            Assert.AreEqual('W', dlsSystem.Direction);
+            Assert.AreEqual(4, dlsSystem.LegalSubdivision);
+            Assert.AreEqual(6, dlsSystem.Meridian);
+            Assert.AreEqual("SW", dlsSystem.Quarter);
+            Assert.AreEqual(82, dlsSystem.Township);
+            Assert.AreEqual(4, dlsSystem.Range);
+            Assert.AreEqual(11, dlsSystem.Section);
         }
 
         [TestMethod]
         public void ConversionTests()
         {
-            var dls = new DlsSystem(7, 6, 5, 4, 'W', 5);
-
-            var ll = dls.ToLatLong();
+            var ll = new DlsSystem(7, 6, 5, 4, 'W', 5).ToLatLong();
             Assert.AreEqual(49.354435, ll.Latitude, 0.000001);
             Assert.AreEqual(-114.524994, ll.Longitude, 0.000001);
 
@@ -119,6 +79,38 @@ namespace UnitTestProject1
             //assert that location b is closest to the test location
             Assert.IsTrue(b < a);
             Assert.IsTrue(b < c);
+        }
+
+        [TestMethod]
+        public void TestEquality()
+        {
+            var a = new DlsSystem(8, 36, 23, 1, 'W', 5);
+            var b = new DlsSystem(8, 36, 23, 1, 'W', 5);
+
+            Assert.IsTrue(a == b);
+            Assert.IsFalse(a != b);
+
+            Assert.IsTrue(a.Equals(b));
+            Assert.IsTrue(b.Equals(a));
+        }
+
+        [TestMethod]
+        public void TestInequality()
+        {
+            var a = new DlsSystem(8, 36, 23, 1, 'W', 5);
+            var b = new DlsSystem(8, 36, 23, 1, 'W', 4);
+
+            Assert.IsFalse(a == b);
+            Assert.IsTrue(a != b);
+
+            Assert.IsFalse(a.Equals(b));
+            Assert.IsFalse(b.Equals(a));
+        }
+
+        [TestMethod]
+        public void TestHashCode()
+        {
+            Assert.AreEqual(new DlsSystem(8, 36, 23, 1, 'W', 5).GetHashCode(), new DlsSystem(8, 36, 23, 1, 'W', 5).GetHashCode());
         }
     }
 }

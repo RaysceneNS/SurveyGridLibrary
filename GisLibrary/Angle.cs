@@ -10,11 +10,9 @@ namespace GisLibrary
     /// </summary>
     public struct Angle : IComparable, IComparable<Angle>, IEquatable<Angle>, IFormattable
     {
-        private readonly float _radians;
-
         private Angle(float radians)
         {
-            this._radians = radians;
+            this.Radians = radians;
         }
 
         public static Angle FromRadians(float radians)
@@ -27,19 +25,13 @@ namespace GisLibrary
             return new Angle(DegreesToRadians(degrees));
         }
 
-        public float Radians
-        {
-            get
-            {
-                return this._radians;
-            }
-        }
+        public float Radians { get; }
 
         public float Degrees
         {
             get
             {
-                return RadiansToDegrees(this._radians);
+                return RadiansToDegrees(this.Radians);
             }
         }
 
@@ -47,7 +39,7 @@ namespace GisLibrary
         {
             get
             {
-                float degrees = RadiansToDegrees(this._radians);
+                float degrees = Degrees;
                 if (degrees < 0.0)
                 {
                     return (float)((degrees - Math.Ceiling(degrees)) * 60.0);
@@ -60,7 +52,7 @@ namespace GisLibrary
         {
             get
             {
-                float degrees = RadiansToDegrees(this._radians);
+                float degrees = Degrees;
                 if (degrees < 0.0)
                 {
                     var a = (degrees - Math.Ceiling(degrees)) * 60.0;
@@ -75,7 +67,7 @@ namespace GisLibrary
         {
             get
             {
-                return (float) (this._radians * (200.0 / Math.PI));
+                return (float) (this.Radians * (200.0 / Math.PI));
             }
         }
 
@@ -83,7 +75,7 @@ namespace GisLibrary
         {
             get
             {
-                return this._radians / (1.0f / 1000.0f);
+                return this.Radians / (1.0f / 1000.0f);
             }
         }
 
@@ -108,19 +100,19 @@ namespace GisLibrary
 
         public int CompareTo(Angle other)
         {
-            if (this._radians > other._radians)
+            if (this.Radians > other.Radians)
                 return 1;
-            return this._radians < other._radians ? -1 : 0;
+            return this.Radians < other.Radians ? -1 : 0;
         }
 
         public static bool operator ==(Angle left, Angle right)
         {
-            return Math.Abs(left._radians - right._radians) < float.Epsilon;
+            return Math.Abs(left.Radians - right.Radians) < float.Epsilon;
         }
 
         public static bool operator !=(Angle left, Angle right)
         {
-            return Math.Abs(left._radians - right._radians) > float.Epsilon;
+            return Math.Abs(left.Radians - right.Radians) > float.Epsilon;
         }
 
         public override bool Equals(object obj)
@@ -132,12 +124,12 @@ namespace GisLibrary
 
         public bool Equals(Angle other)
         {
-            return Math.Abs(this._radians - other._radians) < float.Epsilon;
+            return Math.Abs(this.Radians - other.Radians) < float.Epsilon;
         }
 
         public override int GetHashCode()
         {
-            return this._radians.GetHashCode();
+            return this.Radians.GetHashCode();
         }
 
         public override string ToString()
@@ -165,12 +157,12 @@ namespace GisLibrary
 
             if (format == "d")
             {
-                return string.Format(formatProvider, "{0}°", RadiansToDegrees(this._radians));
+                return string.Format(formatProvider, "{0}°", Degrees);
             }
 
             if (format == "g")
             {
-                return $"{this._radians}";
+                return $"{this.Radians}";
             }
             throw new ArgumentException($"Unsupported format string '{format}'");
         }

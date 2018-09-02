@@ -60,7 +60,7 @@ namespace GisLibrary
                             {
                                 //read lat / long
                                 township[i] = binaryReader.ReadSingle();
-                                township[i+1] = binaryReader.ReadSingle() * -1;
+                                township[i+1] = binaryReader.ReadSingle();
                             }
                             _offsets.Add(key, township);
                         }
@@ -69,6 +69,43 @@ namespace GisLibrary
             }
         }
 
+        /// <summary>
+        /// Returns the NW, NE, SW, SE corners of the township
+        /// </summary>
+        /// <param name="township"></param>
+        /// <param name="range"></param>
+        /// <param name="meridian"></param>
+        /// <returns></returns>
+        internal LatLongCorners[] TownshipMarkers(byte township, byte range, byte meridian)
+        {
+            //ask the boundary provider for a list of sections that border this township
+            //each township is numbered as:
+            // 31|32|33|34|35|36
+            // 30|29|28|27|26|25
+            // 19|20|21|22|23|24
+            // 18|17|16|15|14|13
+            // 07|08|09|10|11|12
+            // 06|05|04|03|02|01
+            //look at each coordinate pair until we find ones that are the extreme corners
+            var key = (ushort)(meridian << 13 | range << 7 | township);
+            if (!_offsets.TryGetValue(key, out var townshipFloats))
+                return null;
+
+            int section = 0;
+            var corners = new LatLongCorners[36];
+            for (int offset = 0; offset < 288; offset += 8)
+            {
+                var se = LatLongCoordinate(townshipFloats, offset+0);
+                var sw = LatLongCoordinate(townshipFloats, offset+2);
+                var nw = LatLongCoordinate(townshipFloats, offset+4);
+                var ne = LatLongCoordinate(townshipFloats, offset+6);
+
+                // Build a boundary object that contains 1-4 corners.
+                corners[section] = new LatLongCorners(se, sw, nw, ne);
+                section++;
+            }
+            return corners;
+        }
 
         /// <summary>
         /// Returns the NW, NE, SW, SE corners of the township
@@ -77,10 +114,10 @@ namespace GisLibrary
         /// <param name="range"></param>
         /// <param name="meridian"></param>
         /// <returns></returns>
-        public LatLongCorners TownshipMarkers(byte township, byte range, byte meridian)
+        public LatLongCorners TownshipBoundary(byte township, byte range, byte meridian)
         {
             //ask the boundary provider for a list of sections that border this township
-            //each township is number as:
+            //each township is numbered as:
             // 31|32|33|34|35|36
             // 30|29|28|27|26|25
             // 19|20|21|22|23|24
@@ -116,10 +153,9 @@ namespace GisLibrary
                     nw = new LatLongCoordinate(lat, lon);
             }
             
-            return new LatLongCorners(se, sw, ne, nw);
+            return new LatLongCorners(se, sw, nw, ne);
         }
-
-
+        
         /// <summary>
         /// Returns the list of boundary coordinates for the given section 
         /// </summary>
@@ -152,7 +188,7 @@ namespace GisLibrary
             var ne = LatLongCoordinate(townshipFloats, offset);
 
             // Build a boundary object that contains 1-4 corners.
-            return new LatLongCorners(se, sw, ne, nw);
+            return new LatLongCorners(se, sw, nw, ne);
         }
 
         private static LatLongCoordinate? LatLongCoordinate(float[] townshipFloats, int offset)

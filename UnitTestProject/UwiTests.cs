@@ -22,21 +22,32 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
-        public void TestCtor()
+        public void TestNtsConstructor()
         {
             var a = new UniqueWellIdentifier('0', 'd', 96, 'h', 94, 'a', 15, '0');
             Assert.IsNotNull(a);
+        }
+
+        [TestMethod]
+        public void TestDlsConstructor()
+        {
 
             var b = new UniqueWellIdentifier("00", 0, 0, 0, 0, 'A', 0, 'A');
             Assert.IsNotNull(b);
         }
 
         [TestMethod]
-        public void TestToString()
+        public void TestNtsToString()
         {
             var a = new UniqueWellIdentifier('0', 'd', 96, 'h', 94, 'a', 15, '0');
-
             Assert.AreEqual("200d096h094a1500", a.ToString());
+        }
+
+        [TestMethod]
+        public void TestDlsToString()
+        {
+            var a = new UniqueWellIdentifier("00", 0, 0, 0, 0, 'A', 0, 'A');
+            Assert.AreEqual("100000000000A00A", a.ToString());
         }
 
         [TestMethod]
@@ -55,32 +66,32 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestParseNts()
         {
-            var a = UniqueWellIdentifier.Parse("200D096H094A1500");
-            Assert.AreEqual(UniqueWellIdentifier.SurveySystemCode.NationalTopographicSeries, a.SurveySystem);
-            Assert.AreEqual("00", a.LocationExceptionCode);
-            Assert.AreEqual("D096H094A150", a.LegalSurveySystem);
-            Assert.AreEqual('0', a.EventSequenceCode);
+            var wellIdentifier = UniqueWellIdentifier.Parse("200D096H094A1500");
+            Assert.AreEqual(UniqueWellIdentifier.SurveySystemCode.NationalTopographicSeries, wellIdentifier.SurveySystem);
+            Assert.AreEqual("00", wellIdentifier.LocationExceptionCode);
+            Assert.AreEqual("D096H094A150", wellIdentifier.LegalSurveySystem);
+            Assert.AreEqual('0', wellIdentifier.EventSequenceCode);
         }
 
         [TestMethod]
         public void TestParseFederal()
         {
-            var a = UniqueWellIdentifier.Parse("300F556220121450");
-            Assert.AreEqual(UniqueWellIdentifier.SurveySystemCode.FederalPermitSystem, a.SurveySystem);
-            Assert.AreEqual("00", a.LocationExceptionCode);
-            Assert.AreEqual("F55622012145", a.LegalSurveySystem);
-            Assert.AreEqual('0', a.EventSequenceCode);
+            var wellIdentifier = UniqueWellIdentifier.Parse("300F556220121450");
+            Assert.AreEqual(UniqueWellIdentifier.SurveySystemCode.FederalPermitSystem, wellIdentifier.SurveySystem);
+            Assert.AreEqual("00", wellIdentifier.LocationExceptionCode);
+            Assert.AreEqual("F55622012145", wellIdentifier.LegalSurveySystem);
+            Assert.AreEqual('0', wellIdentifier.EventSequenceCode);
         }
 
         [TestMethod]
         public void TestParseGeodetic()
         {
             //400/ 79.999 / 104.999 / 00
-            var a = UniqueWellIdentifier.Parse("4007999910499900");
-            Assert.AreEqual(UniqueWellIdentifier.SurveySystemCode.GeodeticCoordinates, a.SurveySystem);
-            Assert.AreEqual("00", a.LocationExceptionCode);
-            Assert.AreEqual("799991049990", a.LegalSurveySystem);
-            Assert.AreEqual('0', a.EventSequenceCode);
+            var wellIdentifier = UniqueWellIdentifier.Parse("4007999910499900");
+            Assert.AreEqual(UniqueWellIdentifier.SurveySystemCode.GeodeticCoordinates, wellIdentifier.SurveySystem);
+            Assert.AreEqual("00", wellIdentifier.LocationExceptionCode);
+            Assert.AreEqual("799991049990", wellIdentifier.LegalSurveySystem);
+            Assert.AreEqual('0', wellIdentifier.EventSequenceCode);
         }
 
         [TestMethod]
@@ -97,27 +108,36 @@ namespace UnitTestProject1
         public void TestNtsToLatLong()
         {
             var a = UniqueWellIdentifier.Parse("200D096H094A1500");
-            var ll = UniqueWellIdentifier.ToLatLongCoordinate(a);
-            Assert.AreEqual(56.9145812988281, ll.Latitude, 0.000000001);
-            Assert.AreEqual(-120.565628051758, ll.Longitude, 0.000000001);
+            var latLongCoordinate = UniqueWellIdentifier.ToLatLongCoordinate(a);
+            Assert.AreEqual(56.9145812988281, latLongCoordinate.Latitude, 0.000000001);
+            Assert.AreEqual(-120.565628051758, latLongCoordinate.Longitude, 0.000000001);
+        }
+
+        [TestMethod, ExpectedException(typeof(CoordinateConversionException))]
+        public void TestDlsToLatLongWithException()
+        {
+            var a = UniqueWellIdentifier.Parse("100143608517W600");
+            var latLongCoordinate = UniqueWellIdentifier.ToLatLongCoordinate(a);
+            Assert.AreEqual(56.418849, latLongCoordinate.Latitude, 0.000001);
+            Assert.AreEqual(-120.512955, latLongCoordinate.Longitude, 0.000001);
         }
 
         [TestMethod]
         public void TestDlsToLatLong()
         {
-            var a = UniqueWellIdentifier.Parse("100143608517W600");
-            var ll = UniqueWellIdentifier.ToLatLongCoordinate(a);
-            Assert.AreEqual(56.418849, ll.Latitude, 0.000001);
-            Assert.AreEqual(-120.512955, ll.Longitude, 0.000001);
+            var a = UniqueWellIdentifier.Parse("100143608517W500");
+            var latLongCoordinate = UniqueWellIdentifier.ToLatLongCoordinate(a);
+            Assert.AreEqual(56.4191398, latLongCoordinate.Latitude, 0.000001);
+            Assert.AreEqual(-116.5479126, latLongCoordinate.Longitude, 0.000001);
         }
 
         [TestMethod]
         public void TestFpsToLatLong()
         {
             var a = UniqueWellIdentifier.Parse("300F556220121450");
-            var ll = UniqueWellIdentifier.ToLatLongCoordinate(a);
-            Assert.AreEqual(62.404167, ll.Latitude, 0.000001);
-            Assert.AreEqual(-121.921875, ll.Longitude, 0.000001);
+            var latLongCoordinate = UniqueWellIdentifier.ToLatLongCoordinate(a);
+            Assert.AreEqual(62.404167, latLongCoordinate.Latitude, 0.000001);
+            Assert.AreEqual(-121.921875, latLongCoordinate.Longitude, 0.000001);
         }
     }
 }

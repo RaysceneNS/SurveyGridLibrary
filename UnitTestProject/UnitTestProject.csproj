@@ -57,7 +57,7 @@
     <Compile Include="FederalPermitSystemTests.cs" />
     <Compile Include="LatLongCoordinateTests.cs" />
     <Compile Include="ReferenceEllipsoidTests.cs" />
-    <Compile Include="DlsSectionMarkersTests.cs" />
+    <Compile Include="DlsMarkerProviderTests.cs" />
     <Compile Include="UwiTests.cs" />
   </ItemGroup>
   <ItemGroup>

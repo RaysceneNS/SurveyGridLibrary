@@ -2,7 +2,7 @@
 {
     public class LatLongCorners
     {
-        public LatLongCorners(LatLongCoordinate? se, LatLongCoordinate? sw, LatLongCoordinate? ne, LatLongCoordinate? nw)
+        internal LatLongCorners(LatLongCoordinate? se, LatLongCoordinate? sw, LatLongCoordinate? nw, LatLongCoordinate? ne)
         {
             SouthEast = se;
             SouthWest = sw;

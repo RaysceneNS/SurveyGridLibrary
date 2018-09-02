@@ -48,14 +48,6 @@ SOR/80-590, s. 2.
      */
     public struct FederalPermitSystem : IEquatable<FederalPermitSystem>
     {
-        private readonly char _unit;
-        private readonly byte _section;
-        private readonly short _latDegrees;
-        private readonly byte _latMinutes;
-        private readonly short _lonDegrees;
-        private readonly byte _lonMinutes;
-
-
         /// <summary>
         /// Federal permit system Latitude and longitude refer to the northeast corner of a permit which is 10 minutes by 15
         /// minutes(10' x 30' north of 700). Section(SEC) 100 is coded 00. 
@@ -70,25 +62,25 @@ SOR/80-590, s. 2.
         {
             if (latDegrees < 40 || latDegrees > 85)
             {
-                throw new Exception("latitude must be between 40 and 85.");
+                throw new ArgumentException("latitude must be between 40 and 85.");
             }
             if (latMinutes != 00 && latMinutes != 10 && latMinutes != 20 && latMinutes != 30 && latMinutes != 40 && latMinutes != 50)
             {
-                throw new Exception("latitude minutes must be between in the series [0, 10,20,3,40,50].");
+                throw new ArgumentException("latitude minutes must be between in the series [0, 10,20,3,40,50].");
             }
 
             if (lonDegrees < 42 || lonDegrees > 141)
             {
-                throw new Exception("longitude must be between 42 and 141.");
+                throw new ArgumentException("longitude must be between 42 and 141.");
             }
 
             if (latDegrees < 70 && (lonMinutes != 0 && lonMinutes != 15 && lonMinutes != 30 && lonMinutes != 45))
             {
-                throw new Exception("longitude minutes must be in the series [0, 15, 30, 45] south of 70.");
+                throw new ArgumentException("longitude minutes must be in the series [0, 15, 30, 45] south of 70.");
             }
             if(latDegrees >= 70 && (lonMinutes != 0 && lonMinutes != 30))
             {
-                throw new Exception("longitude minutes must be in the series [0, 30] north of 70.");
+                throw new ArgumentException("longitude minutes must be in the series [0, 30] north of 70.");
             }
 
             //sections are numbered within a grid area and can be divided into of three different sizes  depending on latitude
@@ -103,7 +95,6 @@ SOR/80-590, s. 2.
             // .. .. .. .. .. .. ..
             // .. 52 42 32 22 12 02
             // .. 51 41 31 21 11 01
-
 
             var sectionCount = SectionCount(latDegrees);
             if (section > sectionCount)
@@ -121,45 +112,27 @@ SOR/80-590, s. 2.
                 throw new ArgumentException("unit must be 'A' through 'P'");
             }
 
-            _unit = unit;
-            _section = section;
-            _latDegrees = latDegrees;
-            _latMinutes = latMinutes;
-            _lonDegrees = (short)(lonDegrees*-1);
-            _lonMinutes = lonMinutes;
+            Unit = unit;
+            Section = section;
+            LatDegrees = latDegrees;
+            LatMinutes = latMinutes;
+            LonDegrees = (short)(lonDegrees*-1);
+            LonMinutes = lonMinutes;
         }
 
-        public char Unit
-        {
-            get { return _unit; }
-        }
+        public char Unit { get; }
 
-        public byte Section
-        {
-            get { return _section; }
-        }
+        public byte Section { get; }
 
-        public short LatDegrees
-        {
-            get { return _latDegrees; }
-        } 
+        public short LatDegrees { get; }
 
-        public int LatMinutes
-        {
-            get { return _latMinutes; }
-        }
+        public byte LatMinutes { get; }
 
-        public int LonDegrees
-        {
-            get { return _lonDegrees; }
-        }
+        public short LonDegrees { get; }
 
-        public int LonMinutes
-        {
-            get { return _lonMinutes; }
-        }
+        public byte LonMinutes { get; }
 
-        private static short SectionCount(short latDegrees)
+        internal static short SectionCount(short latDegrees)
         {
             var sectionCount = (short)100;
             if ((latDegrees >= 40 && latDegrees < 60) || (latDegrees >= 70 && latDegrees < 75))
@@ -174,143 +147,19 @@ SOR/80-590, s. 2.
             {
                 sectionCount = 60;
             }
-
             return sectionCount;
-        }
-
-        private static float SectionMinuteFactor(short latDegrees)
-        {
-            var sectionCount = SectionCount(latDegrees);
-            //section width is 15 minutes or 30 minutes based on the 70th degree of latitude
-            if (latDegrees >= 70)
-            {
-                //grid area is 30 minutes side to side
-                switch (sectionCount)
-                {
-                    case 60:
-                        return 5f;
-                    case 80:
-                        return 3.75f;
-                    case 100:
-                        return 3f;
-                    default:
-                        throw new Exception($"section count {sectionCount} is invalid.");
-                }
-            }
-
-            //grid area is 15 minutes side to side, now divide this by the section counter
-            switch (sectionCount)
-            {
-                case 60:
-                    return 2.5f; // 15'/6 = 1.5'
-                case 80:
-                    return 1.875f; // 15'/8 = 1.5'
-                case 100:
-                    return 1.5f; // 15'/10 = 1.5'
-                default:
-                    throw new Exception($"section count {sectionCount} is invalid.");
-            }
-        }
-
-        public static LatLongCoordinate ToLatLong(FederalPermitSystem fps)
-        {
-            return fps.ToLatLong();
         }
 
         public LatLongCoordinate ToLatLong()
         {
-            //determine the number of seconds by breaking down the section and unit
-            var moduloSectionLatitude = _section % 10;
-            if (moduloSectionLatitude == 0)
-                moduloSectionLatitude = 10;
-            moduloSectionLatitude = moduloSectionLatitude - 1;
-
-            // every section is 1 minute in the north south (latitude) orientation 
-            var latMinutes = (float)(_latMinutes + moduloSectionLatitude); // 1 minute per division
-
-            //longitude width varies by the section count 60,60 or 100 
-            var remainSectionLongitude = _section / 10;
-            float sectionMinuteFactor = SectionMinuteFactor(_latDegrees);
-            float lonMinutes = _lonMinutes + (remainSectionLongitude * sectionMinuteFactor);
-            
-            // add in the offset for the unit now
-            // longitude varies between 1.5 and 5 minutes per division 
-            short x, y;
-            switch (_unit)
-            {
-                case 'A':
-                    x = 0;
-                    y = 0;
-                    break;
-                case 'B':
-                    x = 1;
-                    y = 0;
-                    break;
-                case 'C':
-                    x = 2;
-                    y = 0;
-                    break;
-                case 'D':
-                    x = 3;
-                    y = 0;
-                    break;
-                case 'E':
-                    x = 3;
-                    y = 1;
-                    break;
-                case 'F':
-                    x = 2;
-                    y = 1;
-                    break;
-                case 'G':
-                    x = 1;
-                    y = 1;
-                    break;
-                case 'H':
-                    x = 0;
-                    y = 1;
-                    break;
-                case 'I':
-                    x = 0;
-                    y = 2;
-                    break;
-                case 'J':
-                    x = 1;
-                    y = 2;
-                    break;
-                case 'K':
-                    x = 2;
-                    y = 2;
-                    break;
-                case 'L':
-                    x = 3;
-                    y = 2;
-                    break;
-                case 'M':
-                    x = 3;
-                    y = 3;
-                    break;
-                case 'N':
-                    x = 2;
-                    y = 3;
-                    break;
-                case 'O':
-                    x = 1;
-                    y = 3;
-                    break;
-                case 'P':
-                    x = 0;
-                    y = 3;
-                    break;
-                default:
-                    throw new Exception();
-            }
-
-            latMinutes += y * (1/4f); //add quarter minutes to latitude
-            lonMinutes += x * (sectionMinuteFactor / 4f); //add quarter sections to longitude
-            
-            return new LatLongCoordinate(_latDegrees, latMinutes, _lonDegrees, lonMinutes);
+            return FederalPermitSystemConverter.ToLatLong(this);
         }
+
+        public static LatLongCoordinate ToLatLong(FederalPermitSystem fps)
+        {
+            return FederalPermitSystemConverter.ToLatLong(fps);
+        }
+
 
         public bool Equals(FederalPermitSystem other)
         {
@@ -337,12 +186,12 @@ SOR/80-590, s. 2.
         /// </returns>
         public override int GetHashCode()
         {
-            return _lonMinutes.GetHashCode() ^
-                   _lonDegrees.GetHashCode() ^
-                   _latMinutes.GetHashCode() ^
-                   _latDegrees.GetHashCode() ^
-                   _section.GetHashCode() ^
-                   _unit.GetHashCode();
+            return LonMinutes.GetHashCode() ^
+                   LonDegrees.GetHashCode() ^
+                   LatMinutes.GetHashCode() ^
+                   LatDegrees.GetHashCode() ^
+                   Section.GetHashCode() ^
+                   Unit.GetHashCode();
         }
 
         /// <summary>
@@ -353,12 +202,12 @@ SOR/80-590, s. 2.
         /// <returns></returns>
         public static bool operator ==(FederalPermitSystem x, FederalPermitSystem y)
         {
-            return x._lonMinutes == y._lonMinutes &&
-                   x._lonDegrees == y._lonDegrees &&
-                   x._latMinutes == y._latMinutes &&
-                   x._latDegrees == y._latDegrees &&
-                   x._section == y._section &&
-                   x._unit == y._unit;
+            return x.LonMinutes == y.LonMinutes &&
+                   x.LonDegrees == y.LonDegrees &&
+                   x.LatMinutes == y.LatMinutes &&
+                   x.LatDegrees == y.LatDegrees &&
+                   x.Section == y.Section &&
+                   x.Unit == y.Unit;
         }
 
         /// <summary>
@@ -410,7 +259,7 @@ SOR/80-590, s. 2.
 
         public override string ToString()
         {
-            return $"{_unit}-{_section:00}-{_latDegrees:00}{_latMinutes:00}-{(_lonDegrees*-1):000}{_lonMinutes:00}";
+            return $"{Unit}-{Section:00}-{LatDegrees:00}{LatMinutes:00}-{(LonDegrees*-1):000}{LonMinutes:00}";
         }
     }
 }

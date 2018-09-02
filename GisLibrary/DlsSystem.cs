@@ -284,98 +284,7 @@ namespace GisLibrary
             if (buff.Length != 0)
                 yield return buff;
         }
-
-        #region Move to Adjacent Subdivisions
-
-        /// <summary>
-        /// Return the dls location immediately WEST of the current location
-        /// </summary>
-        /// <returns></returns>
-        public DlsSystem GoWest()
-        {
-            byte[] toLsd = { 2, 3, 4, 1, 8, 5, 6, 7, 10, 11, 12, 9, 16, 13, 14, 15 };
-            bool[] ifSec = { false, false, false, true, true, false, false, false, false, false, false, true, true, false, false, false };
-            byte[] toSec = { 2, 3, 4, 5, 6, 1, 12, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 13, 24, 19, 20, 21, 22, 23, 26, 27, 28, 29, 30, 25, 36, 31, 32, 33, 34, 35 };
-            bool[] ifRng = { false, false, false, false, false, true, true, false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false };
-
-            byte sec = ifSec[LegalSubdivision - 1] ? toSec[Section - 1] : Section;
-            byte lsd = toLsd[LegalSubdivision - 1];
-            byte rng = Range;
-            if (ifSec[LegalSubdivision - 1] && ifRng[Section - 1])
-                rng++;
-
-            return new DlsSystem(lsd, sec, Township, rng, 'W', Meridian);
-        }
-
-        /// <summary>
-        /// Return the DlS Location immediately EAST of the current position
-        /// </summary>
-        /// <returns></returns>
-        public DlsSystem GoEast()
-        {
-            byte[] toLsd = { 4, 1, 2, 3, 6, 7, 8, 5, 12, 9, 10, 11, 14, 15, 16, 13 };
-            bool[] ifSec = { true, false, false, false, false, false, false, true, true, false, false, false, false, false, false, true };
-            byte[] toSec = { 6, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 7, 18, 13, 14, 15, 16, 17, 20, 21, 22, 23, 24, 19, 30, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 31 };
-            bool[] ifRng = { true, false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false, false, false, false, false, false, true };
-
-            byte sec = ifSec[LegalSubdivision - 1] ? toSec[Section - 1] : Section;
-            byte lsd = toLsd[LegalSubdivision - 1];
-            byte rng = Range;
-            if (ifSec[LegalSubdivision - 1] && ifRng[Section - 1])
-                rng--;
-
-            return new DlsSystem(lsd, sec, Township, rng, 'W', Meridian);
-        }
-
-        /// <summary>
-        /// Return the DlS Location immediately NORTH of the current position
-        /// </summary>
-        /// <returns></returns>
-        public DlsSystem GoNorth()
-        {
-            byte[] toLsd = { 8, 7, 6, 5, 12, 11, 10, 9, 16, 15, 14, 13, 4, 3, 2, 1 };
-            bool[] ifSec = { false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true };
-            byte[] toSec = { 12, 11, 10, 9, 8, 7, 18, 17, 16, 15, 14, 13, 24, 23, 22, 21, 20, 19, 30, 29, 28, 27, 26, 25, 36, 35, 34, 33, 32, 31, 6, 5, 4, 3, 2, 1 };
-            bool[] ifTwp = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true };
-
-            //move the section if our lsd is on the north edge already
-            byte sec = ifSec[LegalSubdivision - 1] ? toSec[Section - 1] : Section;
-            // move the lsd 
-            byte lsd = toLsd[LegalSubdivision - 1];
-
-            byte twp = Township;
-            if (ifSec[LegalSubdivision - 1] && ifTwp[Section - 1])
-                twp++;
-
-            return new DlsSystem(lsd, sec, twp, Range, Direction, Meridian);
-        }
-
-        /// <summary>
-        /// Return the DlS Location immediately SOUTH of the current position
-        /// </summary>
-        /// <returns></returns>
-        public DlsSystem GoSouth()
-        {
-            byte[] toLsd = { 16, 15, 14, 13, 4, 3, 2, 1, 8, 7, 6, 5, 12, 11, 10, 9 };
-            bool[] ifSec = { true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false };
-            byte[] toSec = { 36, 35, 34, 33, 32, 31, 6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 7, 18, 17, 16, 15, 14, 13, 24, 23, 22, 21, 20, 19, 30, 29, 28, 27, 26, 25 };
-            bool[] ifTwp = { true, true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
-
-            byte sec = ifSec[LegalSubdivision - 1] ? toSec[Section - 1] : Section;
-
-            byte lsd = toLsd[LegalSubdivision - 1];
-
-            byte twp = Township;
-
-            if (ifSec[LegalSubdivision - 1]  && ifTwp[Section - 1])
-                twp--;
-
-            return new DlsSystem(lsd, sec, twp, Range, Direction, Meridian);
-        }
-
-
-        #endregion
-
+        
         #region Conversion
 
         /// <summary>
@@ -458,16 +367,6 @@ namespace GisLibrary
         public static bool operator !=(DlsSystem x, DlsSystem y)
         {
             return !(x == y);
-        }
-
-        public static LatLongCorners TownshipMarkers(byte township, byte range, byte meridian)
-        {
-            return DlsMarkerProvider.Instance.TownshipMarkers(township, range, meridian);
-        }
-
-        public static DlsSystem InferCenterLocation(LatLongCoordinate coordinate)
-        {
-            return DlsSystemConverter.InferCenterLocation(coordinate);
         }
     }
 

@@ -8,23 +8,27 @@ namespace UnitTestProject1
     public class AngleTests
     {
         [TestMethod]
-        public void TestProperties()
+        public void TestFromRadians()
         {
-            var a = Angle.FromRadians((float)Math.PI*2);
-            Assert.AreEqual(400, a.Gradians);
-            Assert.AreEqual(6283.18505859375, a.Milliradians, 0.000000001);
-            Assert.AreEqual(6.28318548202515, a.Radians, 0.000000001);
-            Assert.AreEqual(360, a.Degrees);
-            Assert.AreEqual(0, a.Minutes);
-            Assert.AreEqual(0, a.Seconds);
+            var angle = Angle.FromRadians((float)Math.PI*2);
+            Assert.AreEqual(400, angle.Gradians);
+            Assert.AreEqual(6283.18505859375, angle.Milliradians, 0.000000001);
+            Assert.AreEqual(6.28318548202515, angle.Radians, 0.000000001);
+            Assert.AreEqual(360, angle.Degrees);
+            Assert.AreEqual(0, angle.Minutes);
+            Assert.AreEqual(0, angle.Seconds);
+        }
 
-            var b = Angle.FromDegrees(360);
-            Assert.AreEqual(400, b.Gradians);
-            Assert.AreEqual(6283.18505859375, b.Milliradians, 0.000000001);
-            Assert.AreEqual(6.28318548202515, b.Radians, 0.000000001);
-            Assert.AreEqual(0, b.Minutes);
-            Assert.AreEqual(0, b.Seconds);
-            Assert.AreEqual(360, b.Degrees);
+        [TestMethod]
+        public void TestFromDegrees()
+        {
+            var angle = Angle.FromDegrees(360);
+            Assert.AreEqual(400, angle.Gradians);
+            Assert.AreEqual(6283.18505859375, angle.Milliradians, 0.000000001);
+            Assert.AreEqual(6.28318548202515, angle.Radians, 0.000000001);
+            Assert.AreEqual(0, angle.Minutes);
+            Assert.AreEqual(0, angle.Seconds);
+            Assert.AreEqual(360, angle.Degrees);
         }
 
         [TestMethod]
@@ -38,15 +42,31 @@ namespace UnitTestProject1
 
             Assert.IsTrue(a.Equals(b));
             Assert.IsTrue(b.Equals(a));
+        }
 
-            Assert.IsTrue(a.GetHashCode() == b.GetHashCode());
+        [TestMethod]
+        public void TestInequality()
+        {
+            var a = Angle.FromRadians((float)Math.PI);
+            var b = Angle.FromRadians((float)Math.PI+0.25f);
+
+            Assert.IsFalse(a == b);
+            Assert.IsTrue(a != b);
+
+            Assert.IsFalse(a.Equals(b));
+            Assert.IsFalse(b.Equals(a));
+        }
+
+        [TestMethod]
+        public void TestHashCode()
+        {
+            Assert.AreEqual(Angle.FromRadians((float)Math.PI).GetHashCode(), Angle.FromRadians((float)Math.PI).GetHashCode());
         }
 
         [TestMethod]
         public void TestToString()
         {
             var a = Angle.FromRadians((float)Math.PI);
-
             Assert.AreEqual("3.141593", a.ToString());
             Assert.AreEqual("3.141593", a.ToString("g"));
             Assert.AreEqual("180°", a.ToString("d"));
