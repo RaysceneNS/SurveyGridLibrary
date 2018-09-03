@@ -3,21 +3,21 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     /// <summary>
-    /// This is the DLS section marker provider
+    /// This is the DLS survey coordinate provider. 
     /// </summary>
-    public class DlsMarkerProvider 
+    public class DlsSurveyCoordinateProvider 
     {
         private readonly Dictionary<ushort, float[]> _offsets = new Dictionary<ushort, float[]>(15488);
-        private static volatile DlsMarkerProvider _instance;
+        private static volatile DlsSurveyCoordinateProvider _instance;
         private static readonly object PadLock = new object();
 
         /// <summary>
         /// Returns the singleton instance of this class
         /// </summary>
-        public static DlsMarkerProvider Instance
+        public static DlsSurveyCoordinateProvider Instance
         {
             get
             {
@@ -27,7 +27,7 @@ namespace GisLibrary
                     {
                         if (_instance == null)
                         {
-                            _instance = new DlsMarkerProvider();
+                            _instance = new DlsSurveyCoordinateProvider();
                             _instance.LoadData();
                         }
                     }
@@ -36,14 +36,14 @@ namespace GisLibrary
             }
         }
 
-        private DlsMarkerProvider()
+        private DlsSurveyCoordinateProvider()
         {
         }
 
         private void LoadData()
         {
             var assembly = typeof(LatLongCorners).GetTypeInfo().Assembly;
-            const string resourceName = "GisLibrary.coordinates.gz";
+            const string resourceName = "SurveyGridLibrary.coordinates.gz";
             const int townshipMarkerCount = 36 * 4 * 2; //36 sections of 4 lat longs (2 singles in each pair)
             using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
             {

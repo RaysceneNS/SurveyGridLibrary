@@ -1,6 +1,6 @@
 using System;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
 	/// <summary>
 	/// Exception raised while parsing coordinates

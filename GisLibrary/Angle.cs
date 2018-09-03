@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     /// <summary>
     /// Represents a geographic angle. This angle is measured from the center of the earth and represents either

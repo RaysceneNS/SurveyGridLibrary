@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GisLibrary", "GisLibrary\GisLibrary.csproj", "{22441B4A-2531-4ED0-ADD0-5946A92DD591}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurveyGridLibrary", "GisLibrary\SurveyGridLibrary.csproj", "{22441B4A-2531-4ED0-ADD0-5946A92DD591}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject", "UnitTestProject\UnitTestProject.csproj", "{F34F291E-530D-4896-B44F-7DF77A63D100}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurveyGridLibrary.Test", "UnitTestProject\SurveyGridLibrary.Test.csproj", "{F34F291E-530D-4896-B44F-7DF77A63D100}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

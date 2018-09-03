@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     /// <summary>
     /// Locations throughout all of Canada can be specified using the National Topographic System (NTS), as it is a system based on lines of latitude and longitude, rather than recorded survey data.

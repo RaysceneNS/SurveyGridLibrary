@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     internal static class DlsSystemConverter
     {
@@ -10,7 +10,10 @@ namespace GisLibrary
         private const float SectionHeightInDegrees = 0.014398614f;
 
         /// <summary>
-        /// This is the geodetic height of one township latitude, note that this is not 6 sections because it includes road allowances
+        /// This is the geodetic height of one township latitude, note that this is not 6 sections because it includes road allowances.
+        /// Township lines are numbered from south to north at every 6.0375 miles (9.7164 km), allowing six rows of sections of one mile
+        /// each between each two township lines, as well as space for three road allowances of 1 chain (approximately 20 meters) each.
+        /// A total of 127 township lines are defined between latitude 49º North (first baseline) and latitude 60º North (36th baseline).
         /// </summary>
         private const float TownshipHeightInDegrees = 0.087300101772f;
 
@@ -33,7 +36,7 @@ namespace GisLibrary
         public static LatLongCoordinate ToLatLong(DlsSystem dls)
         {
             //ask the boundary provider for a list
-            var dlsBoundary = DlsMarkerProvider.Instance.BoundaryMarkers(dls.Section, dls.Township, dls.Range, dls.Meridian);
+            var dlsBoundary = DlsSurveyCoordinateProvider.Instance.BoundaryMarkers(dls.Section, dls.Township, dls.Range, dls.Meridian);
             if (dlsBoundary == null || dlsBoundary.Count == 0)
             {
                 throw new CoordinateConversionException("Invalid dls location for conversion to lat long");
@@ -73,7 +76,7 @@ namespace GisLibrary
                 return null;
 
             //get all markers in township
-            var markers = DlsMarkerProvider.Instance.TownshipMarkers(township, range, meridian);
+            var markers = DlsSurveyCoordinateProvider.Instance.TownshipMarkers(township, range, meridian);
             if (markers == null)
                 return null;
 
@@ -122,7 +125,7 @@ namespace GisLibrary
                     if (testDistance < bestDistance)
                     {
                         bestDistance = testDistance;
-                        bestDls = new DlsSystem(legalSubdivision, section, township, range, 'W', meridian);
+                        bestDls = new DlsSystem(legalSubdivision, section, township, range, meridian);
                     }
                 }
             }

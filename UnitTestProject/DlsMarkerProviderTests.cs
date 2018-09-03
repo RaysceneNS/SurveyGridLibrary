@@ -1,8 +1,7 @@
 ﻿using System;
-using GisLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTestProject1
+namespace SurveyGridLibrary.Test
 {
     [TestClass]
     public class DlsMarkerProviderTests
@@ -11,7 +10,7 @@ namespace UnitTestProject1
         public void LoadPerformanceTest()
         {
             var start = DateTime.Now;
-            var provider = DlsMarkerProvider.Instance;
+            var provider = DlsSurveyCoordinateProvider.Instance;
 
             for (byte meridian = 1; meridian <= 6; meridian++)
             {
@@ -33,7 +32,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void VerifyFirstMeridian()
         {
-            var markers = DlsMarkerProvider.Instance.BoundaryMarkers(1, 1, 1, 1);
+            var markers = DlsSurveyCoordinateProvider.Instance.BoundaryMarkers(1, 1, 1, 1);
 
             Assert.IsNotNull(markers);
             Assert.IsNotNull(markers.SouthEast);
@@ -46,7 +45,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void AssertMarkersMatchKnown()
         {
-            var markers = DlsMarkerProvider.Instance.BoundaryMarkers(6, 1, 30, 3);
+            var markers = DlsSurveyCoordinateProvider.Instance.BoundaryMarkers(6, 1, 30, 3);
 
             Assert.IsNotNull(markers.SouthEast);
             Assert.AreEqual(48.9997524, markers.SouthEast.Value.Latitude, 0.000001);
@@ -74,14 +73,14 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestInvalidSectionMarker()
         {
-            var markers = DlsMarkerProvider.Instance.BoundaryMarkers(127, 127, 127, 127);
+            var markers = DlsSurveyCoordinateProvider.Instance.BoundaryMarkers(127, 127, 127, 127);
             Assert.IsNull(markers);
         }
         
         [TestMethod]
         public void TestKnownTownshipMarkers()
         {
-            var markers = DlsMarkerProvider.Instance.TownshipBoundary(23, 29, 4);
+            var markers = DlsSurveyCoordinateProvider.Instance.TownshipBoundary(23, 29, 4);
             // this township has only 85 markers as it is cut in half by Meridian 5.
             Assert.IsNotNull(markers);
             Assert.AreEqual(4, markers.Count);

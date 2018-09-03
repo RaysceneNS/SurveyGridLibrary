@@ -1,4 +1,4 @@
-﻿namespace GisLibrary
+﻿namespace SurveyGridLibrary
 {
     internal static class FederalPermitSystemConverter
     {

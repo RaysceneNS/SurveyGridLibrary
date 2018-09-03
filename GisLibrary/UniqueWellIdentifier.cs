@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     /// <summary>
     /// UWI IN THE DLS SYSTEM
@@ -409,10 +409,10 @@ namespace GisLibrary
             byte.TryParse("" + uwi._id[5] + uwi._id[6], out var section);
             byte.TryParse("" + uwi._id[7] + uwi._id[8] + uwi._id[9], out var township);
             byte.TryParse("" + uwi._id[10] + uwi._id[11], out var range);
-            var direction = uwi._id[12];
+            //var direction = uwi._id[12];
             byte.TryParse("" + uwi._id[13], out var meridian);
 
-            return new DlsSystem(subdivision, section, township, range, direction, meridian);
+            return new DlsSystem(subdivision, section, township, range, meridian);
         }
 
         private static LatLongCoordinate GeodeticToLatLong(UniqueWellIdentifier uwi)

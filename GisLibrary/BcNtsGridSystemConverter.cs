@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     internal static class BcNtsGridSystemConverter
     {

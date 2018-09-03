@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     /// <summary>
     /// Lines of latitude and longitude are the most commonly used method of specifying locations on the earth’s surface.
@@ -486,7 +486,7 @@ namespace GisLibrary
         }
 
         /// <summary>
-        /// Return the distance in metres to another point using WGS84 ellipsoid
+        /// Return the distance in metres to another point using a reference ellipsoid
         /// </summary>
         /// <param name="p2"></param>
         /// <param name="ellipsoid"></param>
@@ -497,7 +497,7 @@ namespace GisLibrary
 
             var transverseRadius = ellipsoid.SemiMajorAxis;
             var conjugateRadius = ellipsoid.SemiMinorAxis;
-            var flattening = ellipsoid.InverseFlattening; // WGS-84 ellipsoid
+            var flattening = ellipsoid.InverseFlattening;
 
             var l = p2.RadiansLon - p1.RadiansLon;
             var u1 = Math.Atan((1 - flattening) * Math.Tan(p1.RadiansLat));

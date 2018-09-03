@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     public class CoordinateConversionException : Exception
     {

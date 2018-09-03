@@ -1,4 +1,4 @@
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     /// <summary>
     /// Because Earth deviates significantly from a perfect ellipsoid, the ellipsoid that best approximates its shape varies

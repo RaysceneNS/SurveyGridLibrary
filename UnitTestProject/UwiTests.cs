@@ -1,7 +1,6 @@
-﻿using GisLibrary;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTestProject1
+namespace SurveyGridLibrary.Test
 {
     [TestClass]
     public class UwiTests

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     /*
      * For the purposes of these Regulations, Canada lands shall be divided into grid areas.

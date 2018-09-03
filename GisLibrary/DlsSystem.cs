@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace GisLibrary
+namespace SurveyGridLibrary
 {
     /// <summary>
     /// Alberta, Saskatchewan, and parts of Manitoba and parts of British Columbia are mapped on a grid system into townships of 
@@ -27,16 +27,14 @@ namespace GisLibrary
         /// <param name="section">The section.</param>
         /// <param name="township">The township.</param>
         /// <param name="range">The range.</param>
-        /// <param name="direction">The direction either E or W</param>
         /// <param name="meridian">The meridian.</param>
-        public DlsSystem(byte legalSubdivision, byte section, byte township, byte range, char direction, byte meridian)
+        public DlsSystem(byte legalSubdivision, byte section, byte township, byte range, byte meridian)
         {
             LegalSubdivision = legalSubdivision;
             Section = section;
             Township = township;
             Range = range;
             Meridian = meridian;
-            Direction = char.ToUpper(direction);
         }
         
         /// <summary>
@@ -116,11 +114,13 @@ namespace GisLibrary
         public byte Meridian { get; }
 
         /// <summary>
-        /// Gets the direction either E or W
+        /// Gets the direction identifier, for now only 'W' meridians are supported
         /// </summary>
-        public char Direction { get; }
-
-
+        public char Direction
+        {
+            get { return 'W'; }
+        }
+        
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
@@ -188,8 +188,9 @@ namespace GisLibrary
 
             if (direction == 'W' && (mer < 1 || mer > 8))
                 throw new CoordinateParseException("Meridian must be in the range 1 to 8.");
-            if (direction == 'E' && mer != 1)
-                throw new CoordinateParseException("Meridian must be 1 when direction is 'E'.");
+
+            if (direction == 'E')
+                throw new CoordinateParseException("East Meridian is not supported.");
             
             location = location.Substring(0, directionIndex);
 
@@ -260,7 +261,7 @@ namespace GisLibrary
             if (lsd < 1 | lsd > 16)
                 throw new CoordinateParseException("Legal Subdivision must be in the range 1 to 16.");
             
-            return new DlsSystem(lsd, sec, twp, rng, direction, mer);
+            return new DlsSystem(lsd, sec, twp, rng, mer);
         }
 
         private static IEnumerable<string> SplitString(string location)
