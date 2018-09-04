@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace SurveyGridLibrary.Test
 {
@@ -54,10 +55,10 @@ namespace SurveyGridLibrary.Test
         {
             var a = new FederalPermitSystem('L', 55, 70, 30, 136, 00);
             Assert.AreEqual("L-55-7030-13600", a.ToString());
-            a = new FederalPermitSystem('L', 00, 70, 30, 136, 00);
-            Assert.AreEqual("L-00-7030-13600", a.ToString());
-            a = new FederalPermitSystem('L', 00, 70, 30, 99, 00);
-            Assert.AreEqual("L-00-7030-09900", a.ToString());
+            a = new FederalPermitSystem('L', 01, 70, 30, 136, 00);
+            Assert.AreEqual("L-01-7030-13600", a.ToString());
+            a = new FederalPermitSystem('L', 01, 70, 30, 99, 00);
+            Assert.AreEqual("L-01-7030-09900", a.ToString());
         }
 
         [TestMethod]
@@ -84,6 +85,58 @@ namespace SurveyGridLibrary.Test
             var latLong = a.ToLatLong();
             Assert.AreEqual(70.5749969482422, latLong.Latitude, 0.00001);
             Assert.AreEqual(-136.287506103516, latLong.Longitude, 0.000001);
+        }
+
+        [TestMethod]
+        public void TestValidConstruction()
+        {
+            var a = new FederalPermitSystem('A', 1, 40, 0, 42, 0);
+            Assert.IsNotNull(a);
+
+            var b = new FederalPermitSystem('P', 100, 85, 50, 141, 0);
+            Assert.IsNotNull(b);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow('9'), DataRow('Q')]
+        public void TestInvalidConstructionUnit(char unit)
+        {
+            var a = new FederalPermitSystem(unit, 1, 40, 0, 42, 0);
+            Assert.IsNotNull(a);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)0), DataRow((byte)101)]
+        public void TestInvalidConstructionSection(byte section)
+        {
+            var a = new FederalPermitSystem('A', section, 40, 0, 42, 0);
+            Assert.IsNotNull(a);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)39), DataRow((byte)86)]
+        public void TestInvalidConstructionLatDegrees(byte latDegrees)
+        {
+            var a = new FederalPermitSystem('A', 1, latDegrees, 0, 42, 0);
+            Assert.IsNotNull(a);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)61)]
+        public void TestInvalidConstructionLatMinutes(byte minutes)
+        {
+            var a = new FederalPermitSystem('A', 1, 40, minutes, 42, 0);
+            Assert.IsNotNull(a);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)41), DataRow((byte)142)]
+        public void TestInvalidConstructionLonDegrees(byte lonDegrees)
+        {
+            var a = new FederalPermitSystem('A', 1, 40, 0, lonDegrees, 0);
+            Assert.IsNotNull(a);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)61)]
+        public void TestInvalidConstructionLonMinutes(byte minutes)
+        {
+            var a = new FederalPermitSystem('A', 1, 40, 0, 42, minutes);
+            Assert.IsNotNull(a);
         }
     }
 }

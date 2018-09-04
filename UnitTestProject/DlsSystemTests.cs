@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace SurveyGridLibrary.Test
 {
@@ -63,11 +64,11 @@ namespace SurveyGridLibrary.Test
         {
             var dlsWest = new DlsSystem(8, 36, 23, 1, 5);
             var dlsEast = new DlsSystem(5, 33, 23, 29, 4);
-            var dls932 = new DlsSystem(9, 36, 23, 1, 5);
+            var dlsNorthWest = new DlsSystem(9, 36, 23, 1, 5);
 
             var latWest = dlsWest.ToLatLong();
             var latEast = dlsEast.ToLatLong();
-            var lat932 = dls932.ToLatLong();
+            var lat932 = dlsNorthWest.ToLatLong();
             Assert.IsTrue(latWest.Longitude < latEast.Longitude);
             
             var latTest = new LatLongCoordinate(51, -114);
@@ -110,6 +111,50 @@ namespace SurveyGridLibrary.Test
         public void TestHashCode()
         {
             Assert.AreEqual(new DlsSystem(8, 36, 23, 1, 5).GetHashCode(), new DlsSystem(8, 36, 23, 1, 5).GetHashCode());
+        }
+
+        [TestMethod]
+        public void TestValidConstruction()
+        {
+            var a = new DlsSystem(16, 36, 127, 34, 6);
+            Assert.IsNotNull(a);
+            var b = new DlsSystem(1, 1, 1, 1, 1);
+            Assert.IsNotNull(b);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)0), DataRow((byte)17)]
+        public void TestInvalidConstructionLsd(byte lsd)
+        {
+            var a = new DlsSystem(lsd, 1, 1, 1, 1);
+            Assert.IsNotNull(a);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)0), DataRow((byte)37)]
+        public void TestInvalidConstructionSection(byte section)
+        {
+            var a = new DlsSystem(1, section, 1, 1, 1);
+            Assert.IsNotNull(a);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)0), DataRow((byte)128)]
+        public void TestInvalidConstructionTownship(byte township)
+        {
+            var a = new DlsSystem(1, 1, township, 1, 1);
+            Assert.IsNotNull(a);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)0), DataRow((byte)35), DataRow((byte)255)]
+        public void TestInvalidConstructionRange(byte range)
+        {
+            var a = new DlsSystem(1, 1, 1, range, 1);
+            Assert.IsNotNull(a);
+        }
+
+        [DataTestMethod, ExpectedException(typeof(ArgumentOutOfRangeException)), DataRow((byte)0), DataRow((byte)7)]
+        public void TestInvalidConstructionMeridian(byte meridian)
+        {
+            var a = new DlsSystem(1, 1, 1, 1, meridian);
+            Assert.IsNotNull(a);
         }
     }
 }

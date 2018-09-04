@@ -52,35 +52,35 @@ SOR/80-590, s. 2.
         /// Federal permit system Latitude and longitude refer to the northeast corner of a permit which is 10 minutes by 15
         /// minutes(10' x 30' north of 700). Section(SEC) 100 is coded 00. 
         /// </summary>
-        /// <param name="unit"></param>
-        /// <param name="section"></param>
-        /// <param name="latDegrees"></param>
-        /// <param name="latMinutes"></param>
-        /// <param name="lonDegrees"></param>
-        /// <param name="lonMinutes"></param>
+        /// <param name="unit">Must be A-P</param>
+        /// <param name="section">Must be 1 -100</param>
+        /// <param name="latDegrees">From 40-85 degrees</param>
+        /// <param name="latMinutes">Range 0-60</param>
+        /// <param name="lonDegrees">from 42-141</param>
+        /// <param name="lonMinutes">Range 0-60</param>
         public FederalPermitSystem(char unit, byte section, short latDegrees, byte latMinutes, short lonDegrees, byte lonMinutes)
         {
             if (latDegrees < 40 || latDegrees > 85)
             {
-                throw new ArgumentException("latitude must be between 40 and 85.");
+                throw new ArgumentOutOfRangeException(nameof(latDegrees), "latitude must be between 40 and 85.");
             }
             if (latMinutes != 00 && latMinutes != 10 && latMinutes != 20 && latMinutes != 30 && latMinutes != 40 && latMinutes != 50)
             {
-                throw new ArgumentException("latitude minutes must be between in the series [0, 10,20,3,40,50].");
+                throw new ArgumentOutOfRangeException(nameof(latMinutes), "latitude minutes must be between in the series [0, 10,20,3,40,50].");
             }
 
             if (lonDegrees < 42 || lonDegrees > 141)
             {
-                throw new ArgumentException("longitude must be between 42 and 141.");
+                throw new ArgumentOutOfRangeException(nameof(lonDegrees), "longitude must be between 42 and 141.");
             }
 
             if (latDegrees < 70 && (lonMinutes != 0 && lonMinutes != 15 && lonMinutes != 30 && lonMinutes != 45))
             {
-                throw new ArgumentException("longitude minutes must be in the series [0, 15, 30, 45] south of 70.");
+                throw new ArgumentOutOfRangeException(nameof(lonMinutes), "longitude minutes must be in the series [0, 15, 30, 45] south of 70.");
             }
             if(latDegrees >= 70 && (lonMinutes != 0 && lonMinutes != 30))
             {
-                throw new ArgumentException("longitude minutes must be in the series [0, 30] north of 70.");
+                throw new ArgumentOutOfRangeException(nameof(lonMinutes), "longitude minutes must be in the series [0, 30] north of 70.");
             }
 
             //sections are numbered within a grid area and can be divided into of three different sizes  depending on latitude
@@ -97,9 +97,9 @@ SOR/80-590, s. 2.
             // .. 51 41 31 21 11 01
 
             var sectionCount = SectionCount(latDegrees);
-            if (section > sectionCount)
+            if (section < 1 || section > sectionCount)
             {
-                throw new ArgumentException($"section must be 1 through {sectionCount}");
+                throw new ArgumentOutOfRangeException(nameof(section), $"section must be 1 through {sectionCount}");
             }
 
             //units are lettered A->P and form a grid
@@ -107,12 +107,12 @@ SOR/80-590, s. 2.
             // L K J I
             // E F G H
             // D B C A
-            if (unit < 'A' || unit > 'P')
+            if ((unit < 'A' || unit > 'P') && (unit <'a' || unit > 'p'))
             {
-                throw new ArgumentException("unit must be 'A' through 'P'");
+                throw new ArgumentOutOfRangeException(nameof(unit), "unit must be 'A' through 'P'");
             }
 
-            Unit = unit;
+            Unit = char.ToUpper(unit);
             Section = section;
             LatDegrees = latDegrees;
             LatMinutes = latMinutes;

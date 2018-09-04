@@ -23,13 +23,24 @@ namespace SurveyGridLibrary
         /// <summary>
         /// Initializes a new instance of the <see cref="DlsSystem"/> class.
         /// </summary>
-        /// <param name="legalSubdivision">The legal subdivision.</param>
-        /// <param name="section">The section.</param>
-        /// <param name="township">The township.</param>
-        /// <param name="range">The range.</param>
-        /// <param name="meridian">The meridian.</param>
+        /// <param name="legalSubdivision">The legal subdivision 1-16.</param>
+        /// <param name="section">The section 1-36.</param>
+        /// <param name="township">The township 1-127.</param>
+        /// <param name="range">The range 1-34.</param>
+        /// <param name="meridian">The meridian 1-6.</param>
         public DlsSystem(byte legalSubdivision, byte section, byte township, byte range, byte meridian)
         {
+            if (legalSubdivision < 1 || legalSubdivision > 16 )
+                throw new ArgumentOutOfRangeException(nameof(legalSubdivision), "Legal sub division must be in the range 1-16");
+            if (section < 1 || section > 36)
+                throw new ArgumentOutOfRangeException(nameof(section), "Section must be in the range 1-36");
+            if (township < 1 || township > 127)
+                throw new ArgumentOutOfRangeException(nameof(township), "Township must be in the range 1-127");
+            if (range < 1 || range > 34)
+                throw new ArgumentOutOfRangeException(nameof(range), "Range must be in the range 1-34");
+            if (meridian < 1 || meridian > 6)
+                throw new ArgumentOutOfRangeException(nameof(meridian), "Meridian must be in the range 1-6");
+
             LegalSubdivision = legalSubdivision;
             Section = section;
             Township = township;

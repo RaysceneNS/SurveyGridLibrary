@@ -21,14 +21,27 @@ namespace SurveyGridLibrary
         /// <summary>
         /// Initializes a new instance of the <see cref="BcNtsGridSystem"/> class.
         /// </summary>
-        /// <param name="quarterUnit">The quarter unit.</param>
-        /// <param name="unit">The unit.</param>
-        /// <param name="block">The block.</param>
-        /// <param name="series">The series.</param>
-        /// <param name="mapArea">The map area.</param>
-        /// <param name="sheet">The sheet.</param>
+        /// <param name="quarterUnit">The quarter unit, valid values are A-D.</param>
+        /// <param name="unit">The unit, valid values are 1-100.</param>
+        /// <param name="block">The block, valid values are A-L.</param>
+        /// <param name="series">The series, valid values are 82-114.</param>
+        /// <param name="mapArea">The map area, valid values are A-P.</param>
+        /// <param name="sheet">The sheet, valid values are 1-16.</param>
         public BcNtsGridSystem(char quarterUnit, byte unit, char block, byte series, char mapArea, byte sheet)
         {
+            if ((quarterUnit < 'A' || quarterUnit > 'D') && (quarterUnit < 'a' || quarterUnit > 'd'))
+                throw new ArgumentOutOfRangeException(nameof(quarterUnit), "Quarter unit must be in the range A-D");
+            if (unit < 1 || unit > 100)
+                throw new ArgumentOutOfRangeException(nameof(unit), "Unit must be in the range 1-100");
+            if ((block < 'A' || block > 'L') && (block < 'a' || block > 'l'))
+                throw new ArgumentOutOfRangeException(nameof(block), "Block must be in the range A-L");
+            if (series < 82 || series > 114)
+                throw new ArgumentOutOfRangeException(nameof(series), "Series must be in the range 82-114");
+            if ((mapArea < 'A' || mapArea > 'P') && (mapArea < 'a' || mapArea > 'p'))
+                throw new ArgumentOutOfRangeException(nameof(mapArea), "Map Area must be in the range A-P");
+            if (sheet < 1 || sheet > 16)
+                throw new ArgumentOutOfRangeException(nameof(sheet), "Sheet must be in the range 1-16");
+
             QuarterUnit = char.ToUpper(quarterUnit);
             Unit = unit;
             Block = char.ToUpper(block);
