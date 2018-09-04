@@ -1,4 +1,4 @@
-# GisLibrary
+# Survey Grid Library
 
 A library for interacting with the Survey systems used within Western Canada. This library targets .Net Standard 1.4 framework. And has no dependencies on other libraries or databases in order to function.
 
