@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Reflection;
 
@@ -10,7 +10,7 @@ namespace SurveyGridLibrary
     /// </summary>
     public class DlsSurveyCoordinateProvider 
     {
-        private readonly Dictionary<ushort, float[]> _offsets = new Dictionary<ushort, float[]>(15488);
+        private readonly Dictionary<ushort, float[]> _offsets = new Dictionary<ushort, float[]>(16000);
         private static volatile DlsSurveyCoordinateProvider _instance;
         private static readonly object PadLock = new object();
 
@@ -44,26 +44,23 @@ namespace SurveyGridLibrary
         {
             var assembly = typeof(LatLongCorners).GetTypeInfo().Assembly;
             const string resourceName = "SurveyGridLibrary.coordinates.gz";
-            const int townshipMarkerCount = 36 * 4 * 2; //36 sections of 4 lat longs (2 singles in each pair)
             using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
             {
                 using (var deflateStream = new DeflateStream(resourceStream, CompressionMode.Decompress))
                 {
-                    using (var binaryReader = new BinaryReader(deflateStream))
+                    byte[] buffer = new byte[1154];
+                    while (true)
                     {
-                        var len = deflateStream.BaseStream.Length;
-                        while (deflateStream.BaseStream.Position < len)
-                        {
-                            var key = binaryReader.ReadUInt16();
-                            float[] township = new float[townshipMarkerCount];
-                            for (int i = 0; i < townshipMarkerCount; i+=2)
-                            {
-                                //read lat / long
-                                township[i] = binaryReader.ReadSingle();
-                                township[i+1] = binaryReader.ReadSingle();
-                            }
-                            _offsets.Add(key, township);
-                        }
+                        int lengthRead = deflateStream.Read(buffer, 0, 1154);
+                        if (lengthRead <= 0)
+                            break;
+
+                        ushort key = (ushort) (buffer[1] << 8 | buffer[0]);
+
+                        var township = new float[288];
+                        Buffer.BlockCopy(buffer, 2, township, 0, 1152);
+
+                        _offsets.Add(key, township);
                     }
                 }
             }
