@@ -19,17 +19,23 @@ namespace SurveyGridLibrary.Test
         [TestMethod]
         public void IterateAllTownships()
         {
+            int i = 0;
             var provider = DlsSurveyCoordinateProvider.Instance;
             for (byte meridian = 1; meridian <= 6; meridian++)
             {
-                for (byte range = 1; range <= 32; range++)
+                for (byte range = 1; range <= 34; range++)
                 {
                     for (byte township = 1; township <= 127; township++)
                     {
                         var markers = provider.TownshipBoundary(township, range, meridian);
+                        if (markers != null)
+                        {
+                            i++;
+                        }
                     }
                 }
             }
+            Assert.AreEqual(15583,i);
         }
 
         [TestMethod]
