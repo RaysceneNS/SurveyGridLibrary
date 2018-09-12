@@ -5,31 +5,31 @@ namespace SurveyGridLibrary
 {
     internal static class BcNtsGridSystemConverter
     {
-        private static readonly Dictionary<byte, float> LatPq;
-        private static readonly Dictionary<byte, float> LngPq;
+        private static readonly Dictionary<byte, double> LatPq;
+        private static readonly Dictionary<byte, double> LngPq;
 
-        private static readonly Dictionary<char, float> LatLq;
-        private static readonly Dictionary<char, float> LngLq;
+        private static readonly Dictionary<char, double> LatLq;
+        private static readonly Dictionary<char, double> LngLq;
 
-        private static readonly Dictionary<byte, float> LatSix;
-        private static readonly Dictionary<byte, float> LngSix;
+        private static readonly Dictionary<byte, double> LatSix;
+        private static readonly Dictionary<byte, double> LngSix;
 
-        private static readonly Dictionary<char, float> LatZn;
-        private static readonly Dictionary<char, float> LngZn;
+        private static readonly Dictionary<char, double> LatZn;
+        private static readonly Dictionary<char, double> LngZn;
 
-        private static readonly Dictionary<char, float> LatQtr;
-        private static readonly Dictionary<char, float> LngQtr;
+        private static readonly Dictionary<char, double> LatQtr;
+        private static readonly Dictionary<char, double> LngQtr;
 
-        private const float BlockHeight = 1 / 12f;
-        private const float BlockWidth = 1 / 8f;
-        private const float UnitHeight = BlockHeight / 10;
-        private const float UnitWidth = BlockWidth / 10;
-        private const float QuarterUnitHeight = UnitHeight / 2;
-        private const float QuarterUnitWidth = UnitWidth / 2;
+        private const double BlockHeight = 1 / 12.0;
+        private const double BlockWidth = 1 / 8.0;
+        private const double UnitHeight = BlockHeight / 10;
+        private const double UnitWidth = BlockWidth / 10;
+        private const double QuarterUnitHeight = UnitHeight / 2;
+        private const double QuarterUnitWidth = UnitWidth / 2;
 
         static BcNtsGridSystemConverter()
         {
-            LatPq = new Dictionary<byte, float>
+            LatPq = new Dictionary<byte, double>
             {
                 {82, 48},
                 {83, 52},
@@ -41,7 +41,7 @@ namespace SurveyGridLibrary
                 {104, 56},
                 {114, 56}
             };
-            LngPq = new Dictionary<byte, float>
+            LngPq = new Dictionary<byte, double>
             {
                 {82, 112},
                 {83, 112},
@@ -55,7 +55,7 @@ namespace SurveyGridLibrary
             };
 
 
-            LatLq = new Dictionary<char, float>
+            LatLq = new Dictionary<char, double>
             {
                 {'A', 0},
                 {'B', 0},
@@ -74,7 +74,7 @@ namespace SurveyGridLibrary
                 {'O', 3},
                 {'P', 3}
             };
-            LngLq = new Dictionary<char, float>
+            LngLq = new Dictionary<char, double>
             {
                 {'A', 0},
                 {'B', 2},
@@ -95,47 +95,47 @@ namespace SurveyGridLibrary
             };
 
 
-            LatSix = new Dictionary<byte, float>
+            LatSix = new Dictionary<byte, double>
             {
                 {1, 0},
                 {2, 0},
                 {3, 0},
                 {4, 0},
-                {5,0.25f},
-                {6,0.25f},
-                {7,0.25f},
-                {8,0.25f},
-                {9,0.5f},
-                {10,0.5f},
-                {11,0.5f},
-                {12,0.5f},
-                {13,0.75f},
-                {14, 0.75f},
-                {15, 0.75f},
-                {16, 0.75f}
+                {5, 0.25},
+                {6, 0.25},
+                {7, 0.25},
+                {8, 0.25},
+                {9, 0.5},
+                {10, 0.5},
+                {11, 0.5},
+                {12, 0.5},
+                {13, 0.75},
+                {14, 0.75},
+                {15, 0.75},
+                {16, 0.75}
             };
-            LngSix = new Dictionary<byte, float>
+            LngSix = new Dictionary<byte, double>
             {
                 {1, 0},
-                {2, 0.5f},
+                {2, 0.5},
                 {3, 1},
-                {4, 1.5f},
-                {5, 1.5f},
+                {4, 1.5},
+                {5, 1.5},
                 {6, 1},
-                {7, 0.5f},
+                {7, 0.5},
                 {8, 0},
                 {9, 0},
-                {10, 0.5f},
+                {10, 0.5},
                 {11, 1},
-                {12, 1.5f},
-                {13, 1.5f},
+                {12, 1.5},
+                {13, 1.5},
                 {14, 1},
-                {15, 0.5f},
+                {15, 0.5},
                 {16, 0}
             };
 
 
-            LatZn = new Dictionary<char, float>
+            LatZn = new Dictionary<char, double>
             {
                 {'A', 0},
                 {'B', 0},
@@ -150,7 +150,7 @@ namespace SurveyGridLibrary
                 {'K', BlockHeight * 2},
                 {'L', BlockHeight * 2}
             };
-            LngZn = new Dictionary<char, float>
+            LngZn = new Dictionary<char, double>
             {
                 {'A', 0},
                 {'B', BlockWidth},
@@ -166,14 +166,14 @@ namespace SurveyGridLibrary
                 {'L', BlockWidth * 3}
             };
 
-            LatQtr = new Dictionary<char, float>
+            LatQtr = new Dictionary<char, double>
             {
                 {'A', 0},
                 {'B', 0},
                 {'C', QuarterUnitHeight},
                 {'D', QuarterUnitHeight}
             };
-            LngQtr = new Dictionary<char, float>
+            LngQtr = new Dictionary<char, double>
             {
                 {'A', 0},
                 {'B', QuarterUnitWidth},
@@ -196,8 +196,8 @@ namespace SurveyGridLibrary
                 //114|104|94
                 //   |103|93|83
                 //   |102|92|82
-                float latitude = LatPq[bcNts.Series];
-                float longitude = LngPq[bcNts.Series];
+                double latitude = LatPq[bcNts.Series];
+                double longitude = LngPq[bcNts.Series];
 
                 //now refine the coordinate by the map area
                 //the map areas divide the series numbers into 16 pieces that are labeled A to P.  
@@ -245,7 +245,7 @@ namespace SurveyGridLibrary
                 longitude += LngQtr[bcNts.QuarterUnit] + (QuarterUnitWidth / 2);
 
                 //invert the longitude
-                return new LatLongCoordinate(latitude, longitude * -1);
+                return new LatLongCoordinate((float) latitude, (float) -longitude);
             }
             catch (Exception)
             {
@@ -331,11 +331,11 @@ namespace SurveyGridLibrary
             
             //every unit is 1/120 high by 1/80 wide
             var y = (byte)Math.Floor(120 * lat);
-            var x = (byte)Math.Floor(lng / 0.0125f);
+            var x = (byte)Math.Floor(lng / 0.0125);
             var unit = (byte)(x + 1 + y * 10);
 
-            lat -= y / 120f;
-            lng -= x * 0.0125f;
+            lat -= y / 120.0;
+            lng -= x * 0.0125;
             
             var qtr = '\0';
             foreach (var n in LatQtr.Keys)

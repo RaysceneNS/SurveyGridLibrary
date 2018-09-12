@@ -54,9 +54,6 @@ namespace SurveyGridLibrary.Test
             var ll = new DlsSystem(7, 6, 5, 4, 5).ToLatLong();
             Assert.AreEqual(49.354435, ll.Latitude, 0.000001);
             Assert.AreEqual(-114.524994, ll.Longitude, 0.000001);
-
-            var ntsGridSystem = ll.ToBcNtsGridSystem();
-            Assert.AreEqual("C-022-H/082-G-07", ntsGridSystem.ToString());
         }
 
         [TestMethod]
@@ -68,13 +65,13 @@ namespace SurveyGridLibrary.Test
 
             var latWest = dlsWest.ToLatLong();
             var latEast = dlsEast.ToLatLong();
-            var lat932 = dlsNorthWest.ToLatLong();
+            var latNorthWest = dlsNorthWest.ToLatLong();
             Assert.IsTrue(latWest.Longitude < latEast.Longitude);
             
             var latTest = new LatLongCoordinate(51, -114);
             var a = latTest.RelativeDistanceTo(latWest);
             var b = latTest.RelativeDistanceTo(latEast);
-            var c = latTest.RelativeDistanceTo(lat932);
+            var c = latTest.RelativeDistanceTo(latNorthWest);
 
             //assert that location b is closest to the test location
             Assert.IsTrue(b < a);

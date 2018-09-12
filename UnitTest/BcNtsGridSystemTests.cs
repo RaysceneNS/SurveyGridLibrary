@@ -74,6 +74,14 @@ namespace SurveyGridLibrary.Test
         }
 
         [TestMethod]
+        public void TestFromLatLong()
+        {
+            var ll = new LatLongCoordinate(49.354435f, -114.524994f);
+            var ntsGridSystem = ll.ToBcNtsGridSystem();
+            Assert.AreEqual("C-022-H/082-G-07", ntsGridSystem.ToString());
+        }
+
+        [TestMethod]
         public void TestToLatLong2()
         {
             var coordinate = new BcNtsGridSystem('A', 1, 'J', 93, 'P', 8).ToLatLong();

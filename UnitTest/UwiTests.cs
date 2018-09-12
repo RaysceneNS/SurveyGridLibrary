@@ -108,8 +108,8 @@ namespace SurveyGridLibrary.Test
         {
             var a = UniqueWellIdentifier.Parse("200D096H094A1500");
             var latLongCoordinate = UniqueWellIdentifier.ToLatLongCoordinate(a);
-            Assert.AreEqual(56.9145812988281, latLongCoordinate.Latitude, 0.000000001);
-            Assert.AreEqual(-120.565628051758, latLongCoordinate.Longitude, 0.000000001);
+            Assert.AreEqual(-120.5656280f, latLongCoordinate.Longitude, 0.0000001);
+            Assert.AreEqual(56.914585f, latLongCoordinate.Latitude, 0.000001);
         }
 
         [TestMethod, ExpectedException(typeof(CoordinateConversionException))]

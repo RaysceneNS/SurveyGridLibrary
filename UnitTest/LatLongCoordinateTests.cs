@@ -165,7 +165,7 @@ namespace SurveyGridLibrary.Test
             var a = new LatLongCoordinate(30, 30);
             var b = new LatLongCoordinate(40, 31);
             
-            Assert.AreEqual(1113141.309, a.DistanceTo(b, ReferenceEllipsoid.Wgs84), 0.0000001);
+            Assert.AreEqual(1113141.546, a.DistanceTo(b, ReferenceEllipsoid.Wgs84), 0.0000001);
 
         }
         [TestMethod]
@@ -174,7 +174,7 @@ namespace SurveyGridLibrary.Test
             var a = new LatLongCoordinate(30, 30);
             var b = new LatLongCoordinate(40, 31);
             
-            Assert.AreEqual(1116899.78905404, a.SphereDistanceTo(b), 0.0000001);
+            Assert.AreEqual(1116900.07417898, a.SphereDistanceTo(b), 0.0000001);
         }
 
         [TestMethod]
@@ -185,7 +185,7 @@ namespace SurveyGridLibrary.Test
 
             var d = LatLongCoordinate.GreatCircleAngle(a, b);
 
-            Assert.AreEqual(10.0332813262939, d.Degrees, 0.00000001);
+            Assert.AreEqual(10.033284074692, d.Degrees, 0.00000001);
         }
 
 

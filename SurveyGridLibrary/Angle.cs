@@ -10,24 +10,24 @@ namespace SurveyGridLibrary
     /// </summary>
     public struct Angle : IComparable, IComparable<Angle>, IEquatable<Angle>, IFormattable
     {
-        private Angle(float radians)
+        private Angle(double radians)
         {
             this.Radians = radians;
         }
 
-        public static Angle FromRadians(float radians)
+        public static Angle FromRadians(double radians)
         {
             return new Angle(radians);
         }
 
-        public static Angle FromDegrees(float degrees)
+        public static Angle FromDegrees(double degrees)
         {
             return new Angle(DegreesToRadians(degrees));
         }
 
-        public float Radians { get; }
+        public double Radians { get; }
 
-        public float Degrees
+        public double Degrees
         {
             get
             {
@@ -35,11 +35,11 @@ namespace SurveyGridLibrary
             }
         }
 
-        public float Minutes
+        public double Minutes
         {
             get
             {
-                float degrees = Degrees;
+                var degrees = Degrees;
                 if (degrees < 0.0)
                 {
                     return (float)((degrees - Math.Ceiling(degrees)) * 60.0);
@@ -48,11 +48,11 @@ namespace SurveyGridLibrary
             }
         }
 
-        public float Seconds
+        public double Seconds
         {
             get
             {
-                float degrees = Degrees;
+                var degrees = Degrees;
                 if (degrees < 0.0)
                 {
                     var a = (degrees - Math.Ceiling(degrees)) * 60.0;
@@ -63,30 +63,30 @@ namespace SurveyGridLibrary
             }
         }
 
-        public float Gradians
+        public double Gradians
         {
             get
             {
-                return (float) (this.Radians * (200.0 / Math.PI));
+                return (this.Radians * (200.0 / Math.PI));
             }
         }
 
-        public float Milliradians
+        public double Milliradians
         {
             get
             {
-                return this.Radians / (1.0f / 1000.0f);
+                return this.Radians * 1000.0;
             }
         }
 
-        private static float DegreesToRadians(float degrees)
+        private static double DegreesToRadians(double degrees)
         {
-            return (float)(degrees / 180.0 * Math.PI);
+            return (degrees / 180.0 * Math.PI);
         }
 
-        private static float RadiansToDegrees(float radians)
+        private static double RadiansToDegrees(double radians)
         {
-            return (float)(radians / Math.PI * 180.0);
+            return (radians / Math.PI * 180.0);
         }
         
         public int CompareTo(object obj)
@@ -162,7 +162,7 @@ namespace SurveyGridLibrary
 
             if (format == "g")
             {
-                return $"{this.Radians}";
+                return $"{this.Radians:F6}";
             }
             throw new ArgumentException($"Unsupported format string '{format}'");
         }

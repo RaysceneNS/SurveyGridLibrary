@@ -11,7 +11,15 @@ namespace SurveyGridLibrary.Test
         {
             var start = DateTime.Now;
             var provider = DlsSurveyCoordinateProvider.Instance;
+            Assert.IsNotNull(provider);
+            var end = DateTime.Now - start;
+            Console.WriteLine("provider load time=" + end.TotalMilliseconds);
+        }
 
+        [TestMethod]
+        public void IterateAllTownships()
+        {
+            var provider = DlsSurveyCoordinateProvider.Instance;
             for (byte meridian = 1; meridian <= 6; meridian++)
             {
                 for (byte range = 1; range <= 32; range++)
@@ -19,27 +27,35 @@ namespace SurveyGridLibrary.Test
                     for (byte township = 1; township <= 127; township++)
                     {
                         var markers = provider.TownshipBoundary(township, range, meridian);
-                        if(markers != null)
-                            Assert.AreEqual(4, markers.Count, $"Did not get 4 markers for {township} {range}W{meridian}" );
                     }
                 }
             }
-
-            var end = DateTime.Now - start;
-            Console.WriteLine("total time=" + end.TotalMilliseconds);
         }
 
         [TestMethod]
-        public void VerifyFirstMeridian()
+        public void VerifyFirstMarker()
         {
             var markers = DlsSurveyCoordinateProvider.Instance.BoundaryMarkers(1, 1, 1, 1);
 
             Assert.IsNotNull(markers);
             Assert.IsNotNull(markers.SouthEast);
-            var southEast = markers.SouthEast.Value;
+            var coordinate = markers.SouthEast;
 
-            Assert.AreEqual(49.0008010864258, southEast.Latitude, 0.000000001);
-            Assert.AreEqual(-97.4597702026367, southEast.Longitude, 0.000000001);
+            Assert.AreEqual(49.000801086426, coordinate.Value.Latitude, 0.0000001);
+            Assert.AreEqual(-97.459770202637, coordinate.Value.Longitude, 0.0000001);
+        }
+
+        [TestMethod]
+        public void VerifyLastMarker()
+        {
+            var markers = DlsSurveyCoordinateProvider.Instance.BoundaryMarkers(36, 78, 15, 6);
+
+            Assert.IsNotNull(markers);
+            Assert.IsNotNull(markers.NorthEast);
+            var coordinate = markers.NorthEast;
+
+            Assert.AreEqual(55.8103638, coordinate.Value.Latitude, 0.000001);
+            Assert.AreEqual(-120.172646, coordinate.Value.Longitude, 0.000001);
         }
 
         [TestMethod]
@@ -83,7 +99,6 @@ namespace SurveyGridLibrary.Test
             var markers = DlsSurveyCoordinateProvider.Instance.TownshipBoundary(23, 29, 4);
             // this township has only 85 markers as it is cut in half by Meridian 5.
             Assert.IsNotNull(markers);
-            Assert.AreEqual(4, markers.Count);
         }
     }
 }

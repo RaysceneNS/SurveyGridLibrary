@@ -135,7 +135,7 @@ namespace SurveyGridLibrary
         /// <returns></returns>
         public static LatLongCoordinate FromRadians(float latRadians, float longRadians)
         {
-            return new LatLongCoordinate(Angle.FromRadians(latRadians).Degrees, Angle.FromRadians(longRadians).Degrees);
+            return new LatLongCoordinate((float) Angle.FromRadians(latRadians).Degrees, (float) Angle.FromRadians(longRadians).Degrees);
         }
 
         /// <summary>
