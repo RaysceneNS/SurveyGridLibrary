@@ -8,7 +8,7 @@ namespace SurveyGridLibrary
     /// <summary>
     /// This is the DLS survey coordinate provider. 
     /// </summary>
-    public class DlsSurveyCoordinateProvider 
+    public class DlsSurveyCoordinateProvider
     {
         private readonly Dictionary<ushort, float[]> _offsets = new Dictionary<ushort, float[]>(16000);
         private static volatile DlsSurveyCoordinateProvider _instance;
@@ -42,27 +42,41 @@ namespace SurveyGridLibrary
 
         private void LoadData()
         {
+            const int townshipDataBytes = 1154;
+            const int townshipCount = 15583;
+
             var assembly = typeof(LatLongCorners).GetTypeInfo().Assembly;
             const string resourceName = "SurveyGridLibrary.coordinates.gz";
             using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
             {
+                if (resourceStream == null)
+                {
+                    throw new Exception($"Embedded manifest resource {resourceName} is null.");
+                }
+
                 using (var deflateStream = new DeflateStream(resourceStream, CompressionMode.Decompress))
                 {
-                    byte[] buffer = new byte[1154];
+                    byte[] buffer = new byte[townshipDataBytes];
                     while (true)
                     {
-                        int lengthRead = deflateStream.Read(buffer, 0, 1154);
-                        if (lengthRead <= 0)
+                        int lengthRead = deflateStream.Read(buffer, 0, townshipDataBytes);
+                        if (lengthRead != townshipDataBytes)
                             break;
 
-                        ushort key = (ushort) (buffer[1] << 8 | buffer[0]);
+                        // The key is 16bits long and is the bit stuffed composition of Meridian, Range, Township 
+                        ushort key = (ushort)(buffer[1] << 8 | buffer[0]);
 
                         var township = new float[288];
-                        Buffer.BlockCopy(buffer, 2, township, 0, 1152);
+                        Buffer.BlockCopy(buffer, 2, township, 0, townshipDataBytes-2);
 
                         _offsets.Add(key, township);
                     }
                 }
+            }
+
+            if (_offsets.Count != townshipCount)
+            {
+                throw new Exception($"Embedded manifest resource {resourceName}, did not contain expected number of townships, got {_offsets.Count} expected {townshipCount}.");
             }
         }
 
@@ -92,10 +106,10 @@ namespace SurveyGridLibrary
             var corners = new LatLongCorners[36];
             for (int offset = 0; offset < 288; offset += 8)
             {
-                var se = LatLongCoordinate(townshipFloats, offset+0);
-                var sw = LatLongCoordinate(townshipFloats, offset+2);
-                var nw = LatLongCoordinate(townshipFloats, offset+4);
-                var ne = LatLongCoordinate(townshipFloats, offset+6);
+                var se = LatLongCoordinate(townshipFloats, offset + 0);
+                var sw = LatLongCoordinate(townshipFloats, offset + 2);
+                var nw = LatLongCoordinate(townshipFloats, offset + 4);
+                var ne = LatLongCoordinate(townshipFloats, offset + 6);
 
                 // Build a boundary object that contains 1-4 corners.
                 corners[section] = new LatLongCorners(se, sw, nw, ne);
@@ -137,9 +151,9 @@ namespace SurveyGridLibrary
                 var lat = townshipFloats[c++];
                 var lon = townshipFloats[c++];
 
-                if(lat == 0 && lon == 0)
+                if (lat == 0 && lon == 0)
                     continue;
-                
+
                 if (se == null || lat < se.Value.Latitude && lon > se.Value.Longitude)
                     se = new LatLongCoordinate(lat, lon);
                 if (sw == null || lat < sw.Value.Latitude && lon < sw.Value.Longitude)
@@ -149,10 +163,10 @@ namespace SurveyGridLibrary
                 if (nw == null || lat > nw.Value.Latitude && lon < nw.Value.Longitude)
                     nw = new LatLongCoordinate(lat, lon);
             }
-            
+
             return new LatLongCorners(se, sw, nw, ne);
         }
-        
+
         /// <summary>
         /// Returns the list of boundary coordinates for the given section 
         /// </summary>
@@ -164,7 +178,7 @@ namespace SurveyGridLibrary
         public LatLongCorners BoundaryMarkers(byte section, byte township, byte range, byte meridian)
         {
             //find the index of the township in the binary file
-            var key = (ushort) (meridian << 13 | range << 7 | township);
+            var key = (ushort)(meridian << 13 | range << 7 | township);
             if (!_offsets.TryGetValue(key, out var townshipFloats))
             {
                 return null;
@@ -191,7 +205,7 @@ namespace SurveyGridLibrary
         private static LatLongCoordinate? LatLongCoordinate(float[] townshipFloats, int offset)
         {
             var lat = townshipFloats[offset];
-            var lon = townshipFloats[offset+1];
+            var lon = townshipFloats[offset + 1];
             LatLongCoordinate? coordinate;
             if (lat == 0 && lon == 0)
                 coordinate = null;
