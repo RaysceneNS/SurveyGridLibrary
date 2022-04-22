@@ -59,8 +59,25 @@ namespace SurveyGridLibrary
                     byte[] buffer = new byte[townshipDataBytes];
                     while (true)
                     {
-                        int lengthRead = deflateStream.Read(buffer, 0, townshipDataBytes);
-                        if (lengthRead != townshipDataBytes)
+                        // We can not rely on the DeflateStream to return the requested number of bytes anymore
+                        // so loop on the read result continuously to fill our buffer
+                        //https://docs.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/partial-byte-reads-in-streams#recommended-action
+                        int totalRead = 0;
+                        int space = townshipDataBytes, offset = 0;
+                        while (totalRead < buffer.Length)
+                        {
+                            int bytesRead = deflateStream.Read(buffer, offset, space);
+                            if (bytesRead == 0)
+                            {
+                                break;
+                            }
+                            totalRead += bytesRead;
+                            space -= bytesRead;
+                            offset += bytesRead;
+                        }
+
+                        // when there are no more bytes, we're done.
+                        if (totalRead == 0)
                             break;
 
                         // The key is 16bits long and is the bit stuffed composition of Meridian, Range, Township 
