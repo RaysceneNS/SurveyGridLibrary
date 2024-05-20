@@ -5,9 +5,9 @@ VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurveyGridLibrary", "SurveyGridLibrary\SurveyGridLibrary.csproj", "{22441B4A-2531-4ED0-ADD0-5946A92DD591}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurveyGridLibrary.Test", "UnitTest\SurveyGridLibrary.Test.csproj", "{F34F291E-530D-4896-B44F-7DF77A63D100}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurveyGridLibrary.Test", "UnitTest\SurveyGridLibrary.Test.csproj", "{F34F291E-530D-4896-B44F-7DF77A63D100}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DlsResourceUtil", "DlsResourceUtil\DlsResourceUtil.csproj", "{37B10E28-E715-4956-805E-55A7689CF7B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DlsResourceUtil", "DlsResourceUtil\DlsResourceUtil.csproj", "{37B10E28-E715-4956-805E-55A7689CF7B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
